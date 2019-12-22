@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://asdcu.github.io</id>
     <title>asd个人博客</title>
-    <updated>2019-12-22T14:49:34.829Z</updated>
+    <updated>2019-12-22T15:16:49.317Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://asdcu.github.io"/>
     <link rel="self" href="https://asdcu.github.io/atom.xml"/>
@@ -10,15 +10,6 @@
     <logo>https://asdcu.github.io/images/avatar.png</logo>
     <icon>https://asdcu.github.io/favicon.ico</icon>
     <rights>All rights reserved 2019, asd个人博客</rights>
-    <entry>
-        <title type="html"><![CDATA[测试发布文章]]></title>
-        <id>https://asdcu.github.io/post/ce-shi-fa-bu-wen-zhang</id>
-        <link href="https://asdcu.github.io/post/ce-shi-fa-bu-wen-zhang">
-        </link>
-        <updated>2019-12-22T10:37:02.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="接下来要开始写文章啦">接下来要开始写文章啦</h3>
-]]></content>
-    </entry>
     <entry>
         <title type="html"><![CDATA[Hello Gridea]]></title>
         <id>https://asdcu.github.io/post/hello-gridea</id>
