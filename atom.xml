@@ -2,44 +2,43 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://asdcu.github.io</id>
     <title>六巷七号</title>
-    <updated>2019-12-22T15:37:21.322Z</updated>
+    <updated>2020-05-25T02:10:45.710Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://asdcu.github.io"/>
     <link rel="self" href="https://asdcu.github.io/atom.xml"/>
     <subtitle>write more do more</subtitle>
     <logo>https://asdcu.github.io/images/avatar.png</logo>
     <icon>https://asdcu.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2019, 六巷七号</rights>
+    <rights>All rights reserved 2020, 六巷七号</rights>
     <entry>
-        <title type="html"><![CDATA[Hello Gridea]]></title>
-        <id>https://asdcu.github.io/post/hello-gridea</id>
-        <link href="https://asdcu.github.io/post/hello-gridea">
+        <title type="html"><![CDATA[linux性能瓶颈的排查思路]]></title>
+        <id>https://asdcu.github.io/post/linux-xing-neng-ping-jing-de-pai-cha-si-lu/</id>
+        <link href="https://asdcu.github.io/post/linux-xing-neng-ping-jing-de-pai-cha-si-lu/">
         </link>
-        <updated>2018-12-11T16:00:00.000Z</updated>
-        <summary type="html"><![CDATA[<p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
-✍️  <strong>Gridea</strong> 一个静态博客写作客户端。你可以用它来记录你的生活、心情、知识、笔记、创意... ...</p>
-]]></summary>
-        <content type="html"><![CDATA[<p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
-✍️  <strong>Gridea</strong> 一个静态博客写作客户端。你可以用它来记录你的生活、心情、知识、笔记、创意... ...</p>
-<!-- more -->
-<p><a href="https://github.com/getgridea/gridea">Github</a><br>
-<a href="http://hvenotes.fehey.com/">Gridea 主页</a><br>
-<a href="http://fehey.com/">示例网站</a></p>
-<h2 id="特性">特性👇</h2>
-<p>📝  你可以使用最酷的 <strong>Markdown</strong> 语法，进行快速创作</p>
-<p>🌉  你可以给文章配上精美的封面图和在文章任意位置插入图片</p>
-<p>🏷️  你可以对文章进行标签分组</p>
-<p>📋  你可以自定义菜单，甚至可以创建外部链接菜单</p>
-<p>💻  你可以在 <strong>𝖶𝗂𝗇𝖽𝗈𝗐𝗌</strong> 或 <strong>𝖬𝖺𝖼𝖮𝖲</strong> 设备上使用此客户端</p>
-<p>🌎  你可以使用 <strong>𝖦𝗂𝗍𝗁𝗎𝖻 𝖯𝖺𝗀𝖾𝗌</strong> 或 <strong>Coding Pages</strong> 向世界展示，未来将支持更多平台</p>
-<p>💬  你可以进行简单的配置，接入 <a href="https://github.com/gitalk/gitalk">Gitalk</a> 或 <a href="https://github.com/SukkaW/DisqusJS">DisqusJS</a> 评论系统</p>
-<p>🇬🇧  你可以使用<strong>中文简体</strong>或<strong>英语</strong></p>
-<p>🌁  你可以任意使用应用内默认主题或任意第三方主题，强大的主题自定义能力</p>
-<p>🖥  你可以自定义源文件夹，利用 OneDrive、百度网盘、iCloud、Dropbox 等进行多设备同步</p>
-<p>🌱 当然 <strong>Gridea</strong> 还很年轻，有很多不足，但请相信，它会不停向前🏃</p>
-<p>未来，它一定会成为你离不开的伙伴</p>
-<p>尽情发挥你的才华吧！</p>
-<p>😘 Enjoy~</p>
+        <updated>2020-04-21T13:51:28.000Z</updated>
+        <content type="html"><![CDATA[<p>有监控的情况下，首先看大盘监控，看有没有异常报警。如果初期还没有监控的情况下，我一般按照以下思路去进行排查。</p>
+<ol>
+<li>首先去看系统的平均负载，使用top或者htop命令查看，平均负载提现的是系统一个整体情况，他应该是cpu、内存、磁盘性能的一个综合，一般是平均负载的平均值大于cpu的核数时候，这说明机器资源已经很紧张。</li>
+<li>负载高了以后，接下来要看看具体什么资源导致。首先会在top命令中看cpu的每个核的使用情况，如果占比很高，那瓶颈应该是cpu，接下来就要看是什么进程导致的</li>
+<li>如果cpu没有什么问题，接下来会看内存，首先用free查看内存使用情况，但不直接看剩余多少，还要结合cache和buffer，然后再看看具体什么进程占用了过高的内存，也是用top去排序。</li>
+<li>内存没有什么问题，就要去看磁盘。磁盘用iostat去看看，遇到的磁盘问题比较少。</li>
+<li>还有就是带宽问题，一般用iftop去查看流量的情况，看看流量是否超过机器给定的带宽。</li>
+<li>涉及到具体的应用的话，就要根据具体应用的设定参数来查看，比如连接数是否超过设定值。</li>
+<li>如果系统层各个指标都没有发现异常，就要考虑外部系统，比如数据库、缓存、存储等等。</li>
+</ol>
+<p>性能概念的指标：高并发=&gt; 吞吐 响应快=&gt;延时<br>
+从应用负载的角度出发：Application-&gt;Libraries-&gt;System Call-&gt;Linux Kernel-&gt;Drive<br>
+用系统资源视角出发：Drive-&gt;Linux Kernel-&gt;System Call-&gt;Libraries-&gt;Application</p>
+<p>性能指标的评判有以上两种常用的角度。接着六步</p>
+<ol>
+<li>选择性能指标评估应用和系统的性能</li>
+<li>为应用和系统设定性能目标</li>
+<li>进行性能基准测试</li>
+<li>性能分析定位瓶颈</li>
+<li>优化系统和应用程序</li>
+<li>性能监控和告警</li>
+</ol>
+<p>从正确的角度出发，设定目标（性能优化不是漫无目的的），基准测试（了解现有系统应用的运行时情况），根据情况分析瓶颈，优化他，设置监控和告警（其实可以再拓展比如达到一定的负载，采取降级熔断等操作）</p>
 ]]></content>
     </entry>
 </feed>
