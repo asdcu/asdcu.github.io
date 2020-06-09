@@ -1,22 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://asdcu.github.io</id>
-    <title>六巷七号</title>
-    <updated>2020-05-25T02:33:16.131Z</updated>
+    <id>http://asd945.com</id>
+    <title>小时候家里没钱</title>
+    <updated>2020-06-09T01:11:40.196Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="https://asdcu.github.io"/>
-    <link rel="self" href="https://asdcu.github.io/atom.xml"/>
-    <subtitle>write more do more</subtitle>
-    <logo>https://asdcu.github.io/images/avatar.png</logo>
-    <icon>https://asdcu.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2020, 六巷七号</rights>
+    <link rel="alternate" href="http://asd945.com"/>
+    <link rel="self" href="http://asd945.com/atom.xml"/>
+    <subtitle>无形装逼最为致命🤒</subtitle>
+    <logo>http://asd945.com/images/avatar.png</logo>
+    <icon>http://asd945.com/favicon.ico</icon>
+    <rights>All rights reserved 2020, 小时候家里没钱</rights>
+    <entry>
+        <title type="html"><![CDATA[linux的CPU性能]]></title>
+        <id>http://asd945.com/linux-de-cpu-xing-neng/</id>
+        <link href="http://asd945.com/linux-de-cpu-xing-neng/">
+        </link>
+        <updated>2020-04-21T14:07:20.000Z</updated>
+        <summary type="html"><![CDATA[<p>🤒🤒🤒🤒🤒🤒🤒🤒🤒🤒</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>🤒🤒🤒🤒🤒🤒🤒🤒🤒🤒</p>
+<!-- more -->
+<h3 id="怎样理解平均负载">怎样理解平均负载</h3>
+<p>每次发现系统变慢的时候，通常第一件做的事就是top或者uptime命令，来交接系统的负载情况。</p>
+<pre><code class="language-shell">$ uptime
+22:10  up 22 days,  2:13, 3 users, load averages: 2.18 2.25 2.16
+</code></pre>
+<p>这里每一列的含义：<br>
+<code>当前时间 系统运行时间 正在登陆的用户数 1分钟 5分钟15分钟的平均负载(load average)</code></p>
+<p>何为平均负载：<br>
+平均负载指的是单位时间内，系统处于可运行状态和不可中断状态的平均进程数，也就是平均活跃进程数。所谓可运行状态的进程，是指正在使用CPU或者正在等待CPU的进程，也就是处于R状态的进程。不可中断状态则是正处于内核态关键流程中的进程，并且这些进程的流程是不可打断的，比如常见的是等待硬件设备的I/O响应，也就是D状态的进程。实际上这是操作系统的一种更加快速的计算方式，一般也当做平均值来计算。</p>
+<p>如，平均负载为2时候：</p>
+<ul>
+<li>在只有2核的CPU上，意味着所有的CPU刚好完全占用</li>
+<li>在4核的CPU上，意味着有50%的空闲</li>
+<li>只有1核的CPU上，则意味着有一般的进程竞争不到CPU</li>
+</ul>
+<p>平均负载的最合理情况就是等于CPU的个数。可以通过top命令或者通过cat <code>/proc/cpuinfo</code>，更加直接地查看CPU的个数如下</p>
+<pre><code class="language-shell">$ grep 'model name' /proc/cpuinfo | wc -l
+</code></pre>
+<p>又如前面所说的，有三个不同的时间间隔，其实是给我们提供了分析系统趋势的数据来源。<br>
+打个比方，好比初秋的北方的早中晚的气温，如果只看中午的温度，实际上是无法反应秋天的天气状况。</p>
+<ul>
+<li>1分钟、5分钟、15分钟三个值基本相同或者相差不大，就说明系统负载趋于平稳</li>
+<li>如果1分钟值远小于15分钟的值，说明最近1分钟的负载正在减少，有下降的趋势</li>
+<li>如果1分钟值远小于15分钟的值，则说明负载在增加，需要持续观察。</li>
+</ul>
+<p><strong>实际的生产环境中，当平均负载高于CPU数量的70%的时候</strong>，就应该分析和排查负载过高的问题了。</p>
+<h3 id="进程竞争cpu的时候没有真正运行但是系统负载升高">进程竞争CPU的时候没有真正运行，但是系统负载升高</h3>
+<p>Linux是一个多任务系统，支持远大于CPU数量的任务同时进行。实际上并发进行而不是并行进行。每一个任务运行之前，都要吸纳设置好CPU寄存器和程序计数器。CPU寄存器，是CPU内置的容量小、但速度极快的内存。而程序计数器则是用来存储CPU正在执行指令的位置、或者即将下一条指令位置。他们都是CPU在任何任务钱，必须依赖的环境。也被称为CPU上下文。任务切换也就是CPU上下文切换.</p>
+<h3 id="cpu上下文切换">CPU上下文切换</h3>
+<p>每个任务运行前，CPU需要知道任务从哪里加载、又从哪里开始。所以需要事先设置好CPU寄存器和程序计数器。CPU寄存器，是CPU内置容量小、但速度极快的内存。而程序计数器是用来存储CPU执行指令位置、或者即将执行的下一条指令位置。他们都是CPU在运行任务钱，必须依赖的环境。也就是CPU上下文。</p>
+<p>所以CPU上下文切换，就是把前一个任务的CPU上下文保存起来，然后加载新的任务的CPU上下文。</p>
+<h3 id="cpu上下文切换的类型">CPU上下文切换的类型</h3>
+<p>进程上下文切换、线程上下文切换、中断上下文切换</p>
+<h4 id="进程上下文切换">进程上下文切换</h4>
+<p>Linux把进程的运行空间分为内核空间和用户空间，内核空间可以访问所有资源，具备最高权限。用户空间则不能访问内存、磁盘等硬件设备资源，必须通过系统调用才能访问到，嵌入到内核中才能访问。</p>
+<p>所以，进程也可分为内核态、用户态。从用户态到内核态，需要通过系统调用来完成。如，查看文件内容，通过<code>open()</code>打开文件，<code>read()</code>来读取文件内容，<code>write()</code>来将内容写进标准输出，最后通过<code>close()</code>关闭文件。这中间就经过多次的系统调用。</p>
+<p>从这里也可以看出，一次系统调用，是发生两次CPU上下文切换。首先是从用户态-&gt;内核态，从内核态-&gt;用户态。CPU寄存器里原原来用户的指令位置，先保存起来，然后更新为内核态指令的位置。系统调用结束后，再恢复原来用户态。</p>
+<p>不过，系统调用与一般的进程切换不同的是，系统调用不涉及虚拟内存、栈、全局变量等进程用户资源，也不会切换进程，而是一直在同一个进程中执行。此外，进程是由内核来管理和调度，因此进程的资源还会包括内核对战、寄存器等内核空间的状态。所以每次进程上下文的切换，应该是保存当前内核态和CPU集群器之前，需要先把该进程的虚拟内存和栈保存起来；加载下一步进程的内核后，还需要刷新进程的虚拟内存和栈。</p>
+<h4 id="进程之间的切换">进程之间的切换</h4>
+<p>进程发生调度的时候会发生上下文切换。比较典型的情况如下：</p>
+<ol>
+<li>CPU时间片用完，就会被系统挂起，切换到其他等待的CPU进程运行</li>
+<li>进程在系统资源不足（内存不足），需要等到资源满足后才能运行</li>
+<li>程序主动通过sleep</li>
+<li>更高优先级的进程运行</li>
+<li>硬件中断</li>
+</ol>
+<h4 id="线程上下文切换">线程上下文切换</h4>
+<p>线程与进程的最大区别是线程是调度的基本单位，进程是资源的拥有单位。进程只提供了虚拟内存、全局变量等资源，实际上调度对象是线程。只有一个线程的时候，进程就等同于线程。当有多个线程时候，这些线程会共享虚拟内存和全局变量资源，在同个进程中，进行线程上下文切换的时候，这些变量不需要修改和替换。不过，线程也有自己的私有数据，比如栈、寄存器等。在不同的进程中，资源不同享，同进程上下文切换。</p>
+<h4 id="中断上下文切换">中断上下文切换</h4>
+<p>中断上下文切换并不涉及到进程的用户态，即使终端打断了用户态的进程，也不需要保存和回复这个进程的虚拟内存、全局变量等用户资源。</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[linux性能瓶颈的排查思路]]></title>
-        <id>https://asdcu.github.io/post/linux-xing-neng-ping-jing-de-pai-cha-si-lu/</id>
-        <link href="https://asdcu.github.io/post/linux-xing-neng-ping-jing-de-pai-cha-si-lu/">
+        <id>http://asd945.com/linuxperf/</id>
+        <link href="http://asd945.com/linuxperf/">
         </link>
         <updated>2020-04-21T13:51:28.000Z</updated>
+        <summary type="html"><![CDATA[<p>有监控的情况下，首先看大盘监控，看有没有异常报警。如果初期还没有监控的情况下，我一般按照以下思路去进行排查。</p>
+]]></summary>
         <content type="html"><![CDATA[<p>有监控的情况下，首先看大盘监控，看有没有异常报警。如果初期还没有监控的情况下，我一般按照以下思路去进行排查。</p>
+<!-- more -->
 <ol>
 <li>首先去看系统的平均负载，使用top或者htop命令查看，平均负载提现的是系统一个整体情况，他应该是cpu、内存、磁盘性能的一个综合，一般是平均负载的平均值大于cpu的核数时候，这说明机器资源已经很紧张。</li>
 <li>负载高了以后，接下来要看看具体什么资源导致。首先会在top命令中看cpu的每个核的使用情况，如果占比很高，那瓶颈应该是cpu，接下来就要看是什么进程导致的</li>
@@ -39,6 +105,471 @@
 <li>性能监控和告警</li>
 </ol>
 <p>从正确的角度出发，设定目标（性能优化不是漫无目的的），基准测试（了解现有系统应用的运行时情况），根据情况分析瓶颈，优化他，设置监控和告警（其实可以再拓展比如达到一定的负载，采取降级熔断等操作）</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[linux的进程线程及调度]]></title>
+        <id>http://asd945.com/linux-de-jin-cheng-xian-cheng-ji-diao-du/</id>
+        <link href="http://asd945.com/linux-de-jin-cheng-xian-cheng-ji-diao-du/">
+        </link>
+        <updated>2020-04-13T13:57:09.000Z</updated>
+        <summary type="html"><![CDATA[<p>操作系统是管理计算机硬件与软件资源的计算程序，也是说是最大的软件。主要通过管理配置内存、决定资源供需顺序、控制输入输出等实现对计算机硬件与软件管理。另外，还提供了让用户和系统交互的操作界面。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>操作系统是管理计算机硬件与软件资源的计算程序，也是说是最大的软件。主要通过管理配置内存、决定资源供需顺序、控制输入输出等实现对计算机硬件与软件管理。另外，还提供了让用户和系统交互的操作界面。</p>
+<!-- more -->
+<p>其实操作系统的种类是多种多样的，不仅仅局限于计算机。从手机到超级计算机都是有操作系统。</p>
+<h3 id="操作系统的基本功能">操作系统的基本功能</h3>
+<ol>
+<li>统一管理计算机的基本资源。处理器资源、IO设备资源、存储器资源、处理器资源</li>
+<li>用户无需继续面向硬件接口编程。IO设备管理软件，提供文件读写接口；文件管理软件，提供操作文件接口。实现对计算机资源的抽象。</li>
+<li>提供了用户与计算机之间的接口。命令窗口形式、命令形式、系统调用形式<br>
+<img src="http://asd945.com/post-images/1586789480027.jpg" alt="" loading="lazy"></li>
+</ol>
+<h3 id="操作系统的相关概念">操作系统的相关概念：</h3>
+<p>并发性、共享性、虚拟性、异步性</p>
+<h4 id="并发性与并行性">并发性与并行性</h4>
+<ul>
+<li>并行是指在同一时间间隔上发生，而并发是宏观上的并行，微观上的并发，实际上是串行的。</li>
+<li>举个例子，打英雄联盟，打团的时候的技能释放。</li>
+</ul>
+<h4 id="共享性">共享性</h4>
+<p>操作系统中的资源可供多个并发程序所使用，这种共同使用的形式称之为资源共享。</p>
+<ul>
+<li>互斥共享</li>
+<li>同时访问形式（宏观上看）</li>
+</ul>
+<h4 id="虚拟性">虚拟性</h4>
+<p>虚拟性表现为将一个物理实体转换为若干个逻辑实体。物理实体是真实存在的，逻辑实体是虚拟的。虚拟的技术主要有时分复用技术和空分复用技术。</p>
+<p>时分复用技术</p>
+<ul>
+<li>资源在时间上进行复用，不同程序并发使用</li>
+<li>多道程序分时使用计算机的硬件资源</li>
+<li>提高资源利用率</li>
+</ul>
+<p>虚拟处理器技术</p>
+<ul>
+<li>借助多道程序设计技术</li>
+<li>为每个程序简历进程</li>
+<li>多个程序分时复用处理器</li>
+</ul>
+<p>虚拟设备技术</p>
+<ul>
+<li>物理设备虚拟为多个逻辑设备</li>
+<li>每个程序占用一个逻辑设备</li>
+<li>多个程序通过逻辑设备并发访问</li>
+</ul>
+<p>空分复用技术</p>
+<p>虚拟磁盘、虚拟内存。</p>
+<ul>
+<li>虚拟磁盘 磁盘分区，C、D、E等逻辑盘</li>
+<li>从逻辑上扩大程序的存储容量</li>
+<li>使用比实际更大的容量</li>
+</ul>
+<h4 id="异步性">异步性</h4>
+<p>操作系统的执行都是走走停停而并非一气呵成的，并且以不可预知的速度向前推荐。</p>
+<h2 id="为什么需要进程">为什么需要进程</h2>
+<p>没有配置OS之前，资源属于当前运行的程序。<br>
+配置OS之后，引入多道程序的概念<br>
+合理的隔离资源、运行环境、提升资源利用率的基本单位。</p>
+<h3 id="进程">进程</h3>
+<p>进程是系统进行资源分配和调度的基本单位<br>
+进程作为程序独立运行的载体保障程序正常执行<br>
+进程的存在使得操作系统资源利用率大幅提升</p>
+<p><strong>多道程序设计概念</strong></p>
+<h3 id="进程的实体">进程的实体</h3>
+<p>主存终端的进程形态，PCB进程控制块</p>
+<table>
+<thead>
+<tr>
+<th>标识符</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>状态</td>
+</tr>
+<tr>
+<td>优先级</td>
+</tr>
+<tr>
+<td>程序计数器</td>
+</tr>
+<tr>
+<td>内存指针</td>
+</tr>
+<tr>
+<td>上下文数据</td>
+</tr>
+<tr>
+<td>IO状态信息</td>
+</tr>
+<tr>
+<td>记账信息</td>
+</tr>
+<tr>
+<td>...</td>
+</tr>
+</tbody>
+</table>
+<p>标识符  进程ID，用于区别其他进程<br>
+状态 运行态<br>
+程序计数器 指向进程即将要执行的下一条指令的地址<br>
+内存指针 程序代码、进程数据的相关指针<br>
+上下文数据  进程执行时处理器存储的数据<br>
+IO状态信息 被进程IO操作所占用的文件列表<br>
+记账信息 使用处理器时间、时钟数总和</p>
+<p>PCB是操作系统进行调度经常会被读取的信息<br>
+PCB是常驻内存，存放在系统专门开放的PCB区域</p>
+<h3 id="为什么要有进程">为什么要有进程</h3>
+<p>多道程序环境下，程序的执行属于并发执行，此时它们将失去封闭性，并具有间断性，以及其运行结果不可再现性的特征。由此，决定了通常的程序是不能参与并发执行的，否则，程序的运行也就失去了意义。为了使程序并发执行，并且可以对并发执行的程序加以描述和控制，引入了进程的概念。</p>
+<h3 id="进程-2">进程</h3>
+<p>进程是操作系统进行资源分配和调度的基本单位<br>
+线程是操作系统进行运行调度的最小单位<br>
+包含在进程之中，是进程实际运行工作的单位，一个进程可以并发多个线程，每个线程执行不同的任务。</p>
+<p>进程的线程共享进程资源。</p>
+<p>进程的实体。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>进程</th>
+<th>线程</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>资源</td>
+<td>资源分配的基本单位</td>
+<td>不拥有资源</td>
+</tr>
+<tr>
+<td>调度</td>
+<td>独立调度的基本单位</td>
+<td>独立调度的最小单位</td>
+</tr>
+<tr>
+<td>系统开销</td>
+<td>进程系统开销大</td>
+<td>线程系统开销小</td>
+</tr>
+<tr>
+<td>通信</td>
+<td>进程IPC</td>
+<td>读写同一进程数据通信</td>
+</tr>
+</tbody>
+</table>
+<h3 id="进程状态管理">进程状态管理</h3>
+<p>创建 就绪 阻塞 执行 终止</p>
+<p>就绪状态</p>
+<ul>
+<li>进程被分配到CPU以外的所有必要资源后</li>
+<li>只要获得CPU的使用权，就可以立即运行</li>
+<li>其他资源都准备好、只差CPU资源的状态为就绪状态。内存、栈空间、IO等资源</li>
+<li>在一个系统中多个处于就绪状态的进程通常排成一个队列。这个队列称之为就绪队列</li>
+</ul>
+<p>执行状态</p>
+<ul>
+<li>进程获得CPU，其程序正在执行成为执行状态</li>
+<li>在单核处理机中，在某个时刻只能有一个进程处于执行状态</li>
+</ul>
+<p>阻塞状态</p>
+<ul>
+<li>进程因某种原因：其他设备未就绪而无法继续执行</li>
+<li>从而放弃CPU的状态成为阻塞状态</li>
+</ul>
+<p>就绪和执行的切换。 （进程调度、时间片用完）<br>
+阻塞 执行（IO请求 ）<br>
+阻塞 就绪 IO完成</p>
+<p>创建：分配PCB、插入就绪队列。拥有PCB,但其他资源尚未就绪的状态称为创建状态。操作系统提供fork函数接口创建进程。<br>
+终止：系统清理、归还PCB 。系统清理或者归还PCB的状态称为终止状态<br>
+<img src="http://asd945.com/post-images/1586874748868.jpg" alt="" loading="lazy"></p>
+<h3 id="进程同步">进程同步</h3>
+<ul>
+<li>生产者消费者问题<br>
+<img src="http://asd945.com/post-images/1586875297431.jpg" alt="" loading="lazy"></li>
+</ul>
+<p>count是存储在cache中，也就是临界区，临界资源</p>
+<ul>
+<li>哲学家进餐问题<br>
+五个哲学家，一个圆桌，五个碗，五只筷子。</li>
+</ul>
+<p>五个哲学家同时拿起五个筷子，五个哲学家都在等待右边的筷子释放，五个哲学家饿死。死锁。</p>
+<p>根源问题是：彼此之间没有通信。需要进程间的同步。对竞争资源在多进程间进行使用次序的协调，使得并发执行的多个进程之间可以有效使用资源想和合作。</p>
+<p>进程同步的原则。</p>
+<p>临界资源指的是一些虽作为共享资源却又无法同时被多个线程共享的资源。当有进程在使用临界资源时，其他进程必须依据操作系统的同步机制等待占用进程释放该共享资源才可重新竞争使用该共享资源。</p>
+<ul>
+<li>空闲让步：资源无法占用，允许使用</li>
+<li>忙则等待：资源有占用，请求进程等待</li>
+<li>有限等待：保证有限等待时间能够使用资源</li>
+<li>让权等待：等待时候，进程需要让出CPU</li>
+</ul>
+<p>同步方法：</p>
+<ul>
+<li>消息队列</li>
+<li>共享存储</li>
+<li>信号量</li>
+</ul>
+<p>进程间多线程也需要同步<br>
+线程同步的方法</p>
+<ul>
+<li>互斥量</li>
+<li>读写锁</li>
+<li>自旋锁</li>
+<li>条件变量</li>
+</ul>
+<ol>
+<li>信号 （事件）SIGINT信号灯</li>
+<li>管道PIPE</li>
+<li>命名管道FIFO</li>
+<li>信号量</li>
+<li>消息队列</li>
+<li>共享内存</li>
+</ol>
+<h3 id="linux进程类型">linux进程类型</h3>
+<ul>
+<li>前台进程 具有终端，可以和用户进行交互的进程</li>
+<li>后台进程 没有和用户进行交互，优先级也比前台进程低,用&amp;</li>
+<li>守护进程 进程名字一般以d结尾都是守护进程 crond httpd sshd mysqld systemd</li>
+</ul>
+<h3 id="进程创建与消亡相关的api">进程创建与消亡相关的API</h3>
+<ul>
+<li>system 通过shell启动一个新进程</li>
+<li>exec 以代替当前进程映像的方式启动一个新的进程</li>
+<li>fork 以复制当前进程映像的方式启动一个子进程，子进程中fork()返回0，父进程fork返回子进程iD</li>
+<li>wait 父进程挂起，等待子进程结束</li>
+<li>孤儿进程与僵尸进程</li>
+</ul>
+<h3 id="进程标记">进程标记</h3>
+<ul>
+<li>进程ID 进程的唯一标识符，每个进程拥有不同的ID</li>
+<li>进程ID 是非负整数，最大值由操作系统限定</li>
+<li>调用fork接口创建进程</li>
+</ul>
+<p>进程的父子关系可以通过pstree来进行查看<br>
+ID为0的进程为idle进程。是系统创建的第一个进程<br>
+ID为1的进程为init进程，是0号进程的子进程，完成系统的初始化。<br>
+init进程是所有用户的祖先进程</p>
+<h3 id="进程的状态标记">进程的状态标记</h3>
+<table>
+<thead>
+<tr>
+<th>状态符号</th>
+<th>状态说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R</td>
+<td>(TASK_Running) ，进程正处于运行状态</td>
+</tr>
+<tr>
+<td>S</td>
+<td>（TASK_INTERRUPTIBLE）,进程正处于睡眠状态</td>
+</tr>
+<tr>
+<td>D</td>
+<td>TASK_UNINTERRUPTIBLE,进程正处于IO等待的睡眠状态</td>
+</tr>
+<tr>
+<td>T</td>
+<td>TASK STOP，进程正处于暂停状态</td>
+</tr>
+<tr>
+<td>Z</td>
+<td>TASK_DEAD or TASK_ZOMBIE，进程正处于退出状态，或僵尸进程</td>
+</tr>
+</tbody>
+</table>
+<p>ps aux | grep python<br>
+ps -u asd<br>
+ps -ef --forest<br>
+ps -aux --sort=pcpu pmem</p>
+<p>top</p>
+<p>PID 进程号<br>
+PR 进程优先级<br>
+VIRT 进程虚拟内存</p>
+<h3 id="进程调度">进程调度</h3>
+<p>计算机通过决策决定哪个就绪进程可以获得CPU使用权。多道程序设计</p>
+<p>保留旧进程的运行信息，清除旧进程。收拾包袱<br>
+选择新的进程，准备运行环境并分配CPU，新进驻</p>
+<p>就绪队列的排队机制<br>
+选择运行进程的委派机制<br>
+新老进程的委派机制</p>
+<p>就绪队列。 新老进程的上下文切换机制。</p>
+<p>老进程放到主存，新进程放到Cache。</p>
+<p>抢占式调度<br>
+非抢占式调度</p>
+<p>进程调度算法：</p>
+<ul>
+<li>先来先服务</li>
+<li>短进程优先</li>
+<li>高优先权调度算法</li>
+<li>时间片轮转算法  比较合理的</li>
+</ul>
+<h3 id="死锁">死锁</h3>
+<p>两个或两个以上的进程在执行过程中，由于资源竞争或者由于彼此通信而造成的一种阻塞现象，若无外力作用，它们都无法推行下去。此时系统处于死锁状态或产生了死锁。这些互相在等待的进程成为死锁进程。</p>
+<p>产生原因：</p>
+<ul>
+<li>相互竞争资源 等待请求的资源被释放，自身占用资源不释放。</li>
+<li>进程调度顺序不当</li>
+</ul>
+<p>死锁产生的四个必要条件</p>
+<ul>
+<li>互斥条件 进程对资源的使用是排他性的使用，只能由一个进程使用</li>
+<li>请求保持条件 至少保持一个资源，又提出新的资源请求，新资源被占用，请求阻塞，被阻塞的进程不释放保持的资源</li>
+<li>不可剥夺条件 进程在获得的资源在未使用的前不能被剥夺，只能由自身释放</li>
+<li>环路等待条件 资源唤醒等待链</li>
+</ul>
+<p>死锁的处理</p>
+<ul>
+<li>预防死锁的方法</li>
+<li>银行家算法</li>
+</ul>
+<ul>
+<li>系统规定进程运行之前，一次性申请所有需要的资源</li>
+<li>当一个进程请求新的资源得不到满足，必须释放占有的资源</li>
+<li>可用资源限行排序，申请必须按照需要递增申请</li>
+</ul>
+<p>所需资源表<br>
+已分配资源表<br>
+可分配资源表</p>
+<p>(所需资源表 - 已分配资源表) == 可分配资源表</p>
+<p>互斥量是最简单的线程同步的方法。<br>
+pthread_mutex</p>
+<p>自旋锁</p>
+<p>等待资源的时候不释放CPU，自旋锁不适合于单核CPU。</p>
+<p>读写锁。特殊的自旋锁</p>
+<p>条件变量</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Linux cgroup]]></title>
+        <id>http://asd945.com/linux-cgroup/</id>
+        <link href="http://asd945.com/linux-cgroup/">
+        </link>
+        <updated>2020-03-05T13:00:24.000Z</updated>
+        <content type="html"><![CDATA[<p>linux cgroups的全称是linux control groups。主要作用，就是限制一个进程组能够使用的资源上限，包括cpu、内存、磁盘、网络带宽等等。</p>
+<p>实际上cgroup对于资源的控制是通过子系统来进行控制。其中子系统包括：</p>
+<ol>
+<li>cpu子系统，主要限制cpu的使用率</li>
+<li>cpuacct子系统</li>
+<li>cpuset子系统</li>
+<li>memory子系统</li>
+<li>bikio子系统</li>
+<li>devices子系统</li>
+<li>net_cls子系统</li>
+<li>freezer子系统</li>
+<li>ns子系统</li>
+</ol>
+<p>相关的内容在<code>/sys/fs/cgroup</code>中<br>
+<img src="http://asd945.com/post-images/1583416471824.jpg" alt="" loading="lazy"></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[数组下标为什么从零开始]]></title>
+        <id>http://asd945.com/shu-zu-xia-biao-wei-shi-me-cong-ling-kai-shi/</id>
+        <link href="http://asd945.com/shu-zu-xia-biao-wei-shi-me-cong-ling-kai-shi/">
+        </link>
+        <updated>2020-02-27T14:14:27.000Z</updated>
+        <summary type="html"><![CDATA[<p>😃🙃</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>😃🙃</p>
+<!-- more -->
+<h3 id="数组下标为什么从零开始">数组下标为什么从零开始</h3>
+<p>从数组存储的内存模型上来看，下标最确切的含义应该是偏移（offset）。a[0]就是0的偏移，a[k]就是k个type_size的位置。</p>
+<pre><code>a[k] = base_size + k * type_size
+</code></pre>
+<p>如果从第一个开始，就是</p>
+<pre><code>a[k] = base_size + (k - 1) * type_size
+</code></pre>
+<p>如果从1开始，需要多执行一次操作，对于cpu来说需要执行多一次的减法指令。</p>
+<h3 id="如何实现随机访问">如何实现随机访问</h3>
+<p><strong>数组是一种线性数据结构，用一组连续的内存空间，来存储一个具有相同类型的数据。</strong></p>
+<ol>
+<li>线性表<br>
+每个线性表上的数据最多油两个方向，只能有前和后两个方向，除了数组，链表、队列、栈也是限行结构。</li>
+<li>非线性表<br>
+与之对应的是非线性表，树、图、堆等。</li>
+</ol>
+<p><strong>连续的内存空间和相同类型的数据</strong><br>
+正是基于这两个特性，才有了随机访问的可能。但是有利也有弊，在数组中插入和删除，是比较麻烦的一件事，因为要保证数组的<strong>内存连续性</strong>。</p>
+<p>假定这是一个长度为10的int类型数组， 一个int是4个字节，假定第一个的地址是1000，那么以此类推每个元素的地址如下。<br>
+<img src="http://asd945.com/post-images/1582816193789.jpg" alt="" loading="lazy"></p>
+<pre><code>&amp;a[i] = &amp;a[0] + i * type_size
+</code></pre>
+<h3 id="数组和链表的区别">数组和链表的区别</h3>
+<ul>
+<li>链表适合插入、删除，时间复杂度为O(1)</li>
+<li>数组支持随机访问，根据下标访问的时间复杂度为O(1)</li>
+<li>数组的查找的时间复杂度不是O(1)</li>
+</ul>
+<h3 id="数组的插入和删除">数组的插入和删除</h3>
+<p>在指定位置进行插入</p>
+<ul>
+<li>在数组末端进行插入O(1)</li>
+<li>数组第k个位置进行插入,需要把k+1后的元素往后挪，所以这里的时间复杂度可能是O(n)</li>
+<li>平均复杂度为(1+2+3+...+n)/n=O(n)</li>
+</ul>
+<p>如果数据是有序的，就必须要移动n-k+1个元素，如果是无序的，仅仅是一个存储数据的集合，有一个简单的办法，直接将第k个元素，移动到数组最后面插入，然后将新的元素写入第k个位置。(快速排序的思想)</p>
+<p>删除，也是同样的道理，数组依次删除其中的某n个元素，相应地就需要挪动元素n次，复杂度也是O(n)。<br>
+<strong>这里可以先通过记录删除的数据，并非真正删除，当数组没有更多空间的时候才去进行一次真正的删除</strong></p>
+<p>这样大大减少了删除操作导致的数据搬移。</p>
+<blockquote>
+<p>拓展：JVM的垃圾回收算法</p>
+</blockquote>
+<h2 id="待补充">待补充</h2>
+<ul>
+<li>python的list</li>
+<li>go的slice和array</li>
+<li>go的垃圾回收</li>
+<li>php的垃圾回收</li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Go通道]]></title>
+        <id>http://asd945.com/go-tong-dao/</id>
+        <link href="http://asd945.com/go-tong-dao/">
+        </link>
+        <updated>2020-02-26T13:24:32.000Z</updated>
+        <content type="html"><![CDATA[<p>通道channel与goroutine，并驾齐驱。</p>
+<blockquote>
+<p>Don't communicate by sharing memory;share momory by communicating.</p>
+</blockquote>
+<p>通道的值本身就是并发安全，也是Go语言自带的、唯一一个可以满足并发安全的类型。可以利用通道在不同goroutine之间传递数据。</p>
+<p>声明并初始化一个通道时，使用Go的内建函数make来初始化，就像make用来初始化一个切片一样。</p>
+<pre><code>var a chan int
+</code></pre>
+<p>类型字面量<code>chan int</code>,其中chan是标识通道类型的关键字，而int则说明通道类型的元素类型。</p>
+<pre><code>var a = make(chan int, 1)
+</code></pre>
+<p>初始化通道的时候，make还可以接收一个参数int,这个参数代表int的容量。</p>
+<p>当参数为0时候，通道为无缓冲通道。当参数大于0，为缓冲通道。</p>
+<p>这里的通道相当于一个先进先出队列（FIFO）。也就是说通道的元素是按照严格的发送顺序。先发送的一定先被接收。</p>
+<p>发送和接收都用到操作符<code>&lt;-</code>,表示了通道数据的流动方向</p>
+<pre><code>ch1 := make(chan int, 3)
+ch1 &lt;- 2
+ch1 &lt;- 1
+ch1 &lt;- 7
+elem1 := &lt;-ch1
+</code></pre>
+<p>通道的发送和接收都有哪些特性</p>
+<ol>
+<li>对于同一个通道，发送操作之间是互斥的，接收操作之间也是互斥的</li>
+<li>发送操作和接收操作对元素处理都是不可分割</li>
+<li>发送操作在完成之前会被阻塞掉，接收操作在完成之前也会阻塞掉</li>
+</ol>
+<p>元素从外界进入通道时会被复制，更具体的说是元素的副本。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[关于]]></title>
+        <id>http://asd945.com/about/</id>
+        <link href="http://asd945.com/about/">
+        </link>
+        <updated>2019-01-25T11:09:48.000Z</updated>
+        <content type="html"><![CDATA[<p>这是关于的页面，可以在这里向世界介绍你！</p>
 ]]></content>
     </entry>
 </feed>

@@ -17,7 +17,7 @@
 
   </head>
   <body>
-    <div class="main px-4 flex flex-col lg:flex-row">
+    <div id="app" class="main px-4 flex flex-col lg:flex-row">
       <div id="sidebar" class="sidebar-wrapper lg:static lg:w-1/4">
   <div class="lg:sticky top-0">
     <div class="sidebar-content">
@@ -31,37 +31,9 @@
       
         <div class="animated fadeInLeft" style="animation-delay: 0.4s">
           <p class="my-4 text-gray-600 font-light hidden lg:block">
-            无形装逼最为致命🤒
+            文章目录
           </p>
-          <div class="animated fadeInLeft social-container hidden lg:block" style="animation-delay: 0.6s">
-            
-              
-                <a href="https://github.com/asdcu" target="_blank" class="mr-4 text-xl text-gray-400 font-light hover:text-gray-900">
-                  <i class="remixicon-github-line"></i>
-                </a>
-              
-            
-              
-            
-              
-            
-              
-            
-              
-            
-              
-            
-              
-            
-              
-            
-              
-            
-              
-                <a href="403886652" target="_blank" class="mr-4 text-xl text-gray-400 font-light hover:text-gray-900">
-                  <i class="remixicon-qq-line"></i>
-                </a>
-              
+          <div class="toc-container hidden lg:block">
             
           </div>
         </div>
@@ -106,127 +78,73 @@
 </div>
 <div class="mask" onclick="closeMenu()">
 </div>
-      <div class="content-wrapper py-32 lg:p-8 lg:w-3/4">
-        <h2 class="latest-article text-lg text-gray-700 mb-8">
-          <i class="remixicon-article-line"></i>
-          最新文章
-        </h2>
-        
-  <section class="post-item md:flex pb-12 animated fadeIn" :style="{ 'animation-delay': `${0 * 0.2}s` }">
-    
-    <div class="content">
-      <a href="http://asd945.com/shu-zu-xia-biao-wei-shi-me-cong-ling-kai-shi/">
-        <h2 class="post-title text-xl font-extrabold mt-5 md:mt-0">数组下标为什么从零开始</h2>
-      </a>
-      <div class="post-abstract text-gray-700 font-light my-4">
-        <p>😃🙃</p>
-
-      </div>
-      <div class="text-gray-400 text-sm font-light">2020-02-27 / 3 min read</div>
-    </div>
-  </section>
-
-  <section class="post-item md:flex pb-12 animated fadeIn" :style="{ 'animation-delay': `${1 * 0.2}s` }">
-    
-      <a href="http://asd945.com/linux-de-cpu-xing-neng/" class="feature-image-wrapper bg-gray-100 rounded-lg flex-shrink-0 mr-8 w-full h-56 h-32 md:w-56 md:h-40">
-        <div class="post-feature-image lazy w-full h-56 h-32 md:w-56 md:h-40" data-bg="'http://asd945.com/post-images/linux-de-cpu-xing-neng.jpg'">
+      <div class="content-wrapper py-32 lg:p-8 lg:w-3/4 post-detail animated fadeIn">
+        <h1 class="text-3xl font-bold lg:mt-16">Go通道</h1>
+        <div class="text-sm text-gray-700 lg:my-8">
+          2020-02-26 / 2 min read
         </div>
-      </a>
-    
-    <div class="content">
-      <a href="http://asd945.com/linux-de-cpu-xing-neng/">
-        <h2 class="post-title text-xl font-extrabold mt-5 md:mt-0">linux的CPU性能</h2>
-      </a>
-      <div class="post-abstract text-gray-700 font-light my-4">
-        <p>🤒🤒🤒🤒🤒🤒🤒🤒🤒🤒</p>
+        
+        <div class="post-content yue">
+          <p>通道channel与goroutine，并驾齐驱。</p>
+<blockquote>
+<p>Don't communicate by sharing memory;share momory by communicating.</p>
+</blockquote>
+<p>通道的值本身就是并发安全，也是Go语言自带的、唯一一个可以满足并发安全的类型。可以利用通道在不同goroutine之间传递数据。</p>
+<p>声明并初始化一个通道时，使用Go的内建函数make来初始化，就像make用来初始化一个切片一样。</p>
+<pre><code>var a chan int
+</code></pre>
+<p>类型字面量<code>chan int</code>,其中chan是标识通道类型的关键字，而int则说明通道类型的元素类型。</p>
+<pre><code>var a = make(chan int, 1)
+</code></pre>
+<p>初始化通道的时候，make还可以接收一个参数int,这个参数代表int的容量。</p>
+<p>当参数为0时候，通道为无缓冲通道。当参数大于0，为缓冲通道。</p>
+<p>这里的通道相当于一个先进先出队列（FIFO）。也就是说通道的元素是按照严格的发送顺序。先发送的一定先被接收。</p>
+<p>发送和接收都用到操作符<code>&lt;-</code>,表示了通道数据的流动方向</p>
+<pre><code>ch1 := make(chan int, 3)
+ch1 &lt;- 2
+ch1 &lt;- 1
+ch1 &lt;- 7
+elem1 := &lt;-ch1
+</code></pre>
+<p>通道的发送和接收都有哪些特性</p>
+<ol>
+<li>对于同一个通道，发送操作之间是互斥的，接收操作之间也是互斥的</li>
+<li>发送操作和接收操作对元素处理都是不可分割</li>
+<li>发送操作在完成之前会被阻塞掉，接收操作在完成之前也会阻塞掉</li>
+</ol>
+<p>元素从外界进入通道时会被复制，更具体的说是元素的副本。</p>
 
-      </div>
-      <div class="text-gray-400 text-sm font-light">2020-04-21 / 7 min read</div>
-    </div>
-  </section>
-
-  <section class="post-item md:flex pb-12 animated fadeIn" :style="{ 'animation-delay': `${2 * 0.2}s` }">
-    
-      <a href="http://asd945.com/linuxperf/" class="feature-image-wrapper bg-gray-100 rounded-lg flex-shrink-0 mr-8 w-full h-56 h-32 md:w-56 md:h-40">
-        <div class="post-feature-image lazy w-full h-56 h-32 md:w-56 md:h-40" data-bg="'http://asd945.com/post-images/linuxperf.jpg'">
         </div>
-      </a>
-    
-    <div class="content">
-      <a href="http://asd945.com/linuxperf/">
-        <h2 class="post-title text-xl font-extrabold mt-5 md:mt-0">linux性能瓶颈的排查思路</h2>
-      </a>
-      <div class="post-abstract text-gray-700 font-light my-4">
-        <p>有监控的情况下，首先看大盘监控，看有没有异常报警。如果初期还没有监控的情况下，我一般按照以下思路去进行排查。</p>
 
-      </div>
-      <div class="text-gray-400 text-sm font-light">2020-04-21 / 3 min read</div>
-    </div>
-  </section>
-
-  <section class="post-item md:flex pb-12 animated fadeIn" :style="{ 'animation-delay': `${3 * 0.2}s` }">
-    
-    <div class="content">
-      <a href="http://asd945.com/linux-de-jin-cheng-xian-cheng-ji-diao-du/">
-        <h2 class="post-title text-xl font-extrabold mt-5 md:mt-0">linux的进程线程及调度</h2>
-      </a>
-      <div class="post-abstract text-gray-700 font-light my-4">
-        <p>操作系统是管理计算机硬件与软件资源的计算程序，也是说是最大的软件。主要通过管理配置内存、决定资源供需顺序、控制输入输出等实现对计算机硬件与软件管理。另外，还提供了让用户和系统交互的操作界面。</p>
-
-      </div>
-      <div class="text-gray-400 text-sm font-light">2020-04-13 / 11 min read</div>
-    </div>
-  </section>
-
-  <section class="post-item md:flex pb-12 animated fadeIn" :style="{ 'animation-delay': `${4 * 0.2}s` }">
-    
-    <div class="content">
-      <a href="http://asd945.com/linux-cgroup/">
-        <h2 class="post-title text-xl font-extrabold mt-5 md:mt-0">Linux cgroup</h2>
-      </a>
-      <div class="post-abstract text-gray-700 font-light my-4">
         
-      </div>
-      <div class="text-gray-400 text-sm font-light">2020-03-05 / 1 min read</div>
-    </div>
-  </section>
 
-  <section class="post-item md:flex pb-12 animated fadeIn" :style="{ 'animation-delay': `${5 * 0.2}s` }">
-    
-    <div class="content">
-      <a href="http://asd945.com/go-tong-dao/">
-        <h2 class="post-title text-xl font-extrabold mt-5 md:mt-0">Go通道</h2>
-      </a>
-      <div class="post-abstract text-gray-700 font-light my-4">
-        
-      </div>
-      <div class="text-gray-400 text-sm font-light">2020-02-26 / 2 min read</div>
-    </div>
-  </section>
 
-  <section class="post-item md:flex pb-12 animated fadeIn" :style="{ 'animation-delay': `${6 * 0.2}s` }">
-    
-    <div class="content">
-      <a href="http://asd945.com/about/">
-        <h2 class="post-title text-xl font-extrabold mt-5 md:mt-0">关于</h2>
-      </a>
-      <div class="post-abstract text-gray-700 font-light my-4">
-        
-      </div>
-      <div class="text-gray-400 text-sm font-light">2019-01-25 / 1 min read</div>
-    </div>
-  </section>
+        <div class="flex justify-between py-8">
+          
+            <div class="prev-post">
+              <a href="http://asd945.com/shu-zu-xia-biao-wei-shi-me-cong-ling-kai-shi/">
+                <h3 class="post-title">
+                  <i class="remixicon-arrow-left-line"></i>
+                  数组下标为什么从零开始
+                </h3>
+              </a>
+            </div>
+          
 
-        <div class="read-more">
+          
+            <div class="next-post">
+              <a href="http://asd945.com/about/">
+                <h3 class="post-title">
+                  关于
+                  <i class="remixicon-arrow-right-line"></i>
+                </h3>
+              </a>
+            </div>
           
         </div>
-        <div class="index-page">
-          <div class="pagination-container animated fadeIn">
-  
-  
-</div>
 
-        </div>
+        
+
       </div>
     </div>
 
