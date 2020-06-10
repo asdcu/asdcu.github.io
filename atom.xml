@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>http://asd945.com</id>
+    <id>https://asd945.com</id>
     <title>小时候家里没钱</title>
-    <updated>2020-06-09T01:15:19.210Z</updated>
+    <updated>2020-06-10T06:34:58.792Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="http://asd945.com"/>
-    <link rel="self" href="http://asd945.com/atom.xml"/>
+    <link rel="alternate" href="https://asd945.com"/>
+    <link rel="self" href="https://asd945.com/atom.xml"/>
     <subtitle>无形装逼最为致命🤒</subtitle>
-    <logo>http://asd945.com/images/avatar.png</logo>
-    <icon>http://asd945.com/favicon.ico</icon>
+    <logo>https://asd945.com/images/avatar.png</logo>
+    <icon>https://asd945.com/favicon.ico</icon>
     <rights>All rights reserved 2020, 小时候家里没钱</rights>
     <entry>
         <title type="html"><![CDATA[linux的CPU性能]]></title>
-        <id>http://asd945.com/linux-de-cpu-xing-neng/</id>
-        <link href="http://asd945.com/linux-de-cpu-xing-neng/">
+        <id>https://asd945.com/linux-de-cpu-xing-neng/</id>
+        <link href="https://asd945.com/linux-de-cpu-xing-neng/">
         </link>
         <updated>2020-04-21T14:07:20.000Z</updated>
         <summary type="html"><![CDATA[<p>🤒🤒🤒🤒🤒🤒🤒🤒🤒🤒</p>
@@ -75,8 +75,8 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[linux性能瓶颈的排查思路]]></title>
-        <id>http://asd945.com/linuxperf/</id>
-        <link href="http://asd945.com/linuxperf/">
+        <id>https://asd945.com/linuxperf/</id>
+        <link href="https://asd945.com/linuxperf/">
         </link>
         <updated>2020-04-21T13:51:28.000Z</updated>
         <summary type="html"><![CDATA[<p>有监控的情况下，首先看大盘监控，看有没有异常报警。如果初期还没有监控的情况下，我一般按照以下思路去进行排查。</p>
@@ -109,8 +109,8 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[linux的进程线程及调度]]></title>
-        <id>http://asd945.com/linux-de-jin-cheng-xian-cheng-ji-diao-du/</id>
-        <link href="http://asd945.com/linux-de-jin-cheng-xian-cheng-ji-diao-du/">
+        <id>https://asd945.com/linux-de-jin-cheng-xian-cheng-ji-diao-du/</id>
+        <link href="https://asd945.com/linux-de-jin-cheng-xian-cheng-ji-diao-du/">
         </link>
         <updated>2020-04-13T13:57:09.000Z</updated>
         <summary type="html"><![CDATA[<p>操作系统是管理计算机硬件与软件资源的计算程序，也是说是最大的软件。主要通过管理配置内存、决定资源供需顺序、控制输入输出等实现对计算机硬件与软件管理。另外，还提供了让用户和系统交互的操作界面。</p>
@@ -123,7 +123,7 @@
 <li>统一管理计算机的基本资源。处理器资源、IO设备资源、存储器资源、处理器资源</li>
 <li>用户无需继续面向硬件接口编程。IO设备管理软件，提供文件读写接口；文件管理软件，提供操作文件接口。实现对计算机资源的抽象。</li>
 <li>提供了用户与计算机之间的接口。命令窗口形式、命令形式、系统调用形式<br>
-<img src="http://asd945.com/post-images/1586789480027.jpg" alt="" loading="lazy"></li>
+<img src="https://asd945.com/post-images/1586789480027.jpg" alt="" loading="lazy"></li>
 </ol>
 <h3 id="操作系统的相关概念">操作系统的相关概念：</h3>
 <p>并发性、共享性、虚拟性、异步性</p>
@@ -283,11 +283,11 @@ PCB是常驻内存，存放在系统专门开放的PCB区域</p>
 阻塞 就绪 IO完成</p>
 <p>创建：分配PCB、插入就绪队列。拥有PCB,但其他资源尚未就绪的状态称为创建状态。操作系统提供fork函数接口创建进程。<br>
 终止：系统清理、归还PCB 。系统清理或者归还PCB的状态称为终止状态<br>
-<img src="http://asd945.com/post-images/1586874748868.jpg" alt="" loading="lazy"></p>
+<img src="https://asd945.com/post-images/1586874748868.jpg" alt="" loading="lazy"></p>
 <h3 id="进程同步">进程同步</h3>
 <ul>
 <li>生产者消费者问题<br>
-<img src="http://asd945.com/post-images/1586875297431.jpg" alt="" loading="lazy"></li>
+<img src="https://asd945.com/post-images/1586875297431.jpg" alt="" loading="lazy"></li>
 </ul>
 <p>count是存储在cache中，也就是临界区，临界资源</p>
 <ul>
@@ -445,8 +445,8 @@ pthread_mutex</p>
     </entry>
     <entry>
         <title type="html"><![CDATA[Linux cgroup]]></title>
-        <id>http://asd945.com/linux-cgroup/</id>
-        <link href="http://asd945.com/linux-cgroup/">
+        <id>https://asd945.com/linux-cgroup/</id>
+        <link href="https://asd945.com/linux-cgroup/">
         </link>
         <updated>2020-03-05T13:00:24.000Z</updated>
         <content type="html"><![CDATA[<p>linux cgroups的全称是linux control groups。主要作用，就是限制一个进程组能够使用的资源上限，包括cpu、内存、磁盘、网络带宽等等。</p>
@@ -463,13 +463,13 @@ pthread_mutex</p>
 <li>ns子系统</li>
 </ol>
 <p>相关的内容在<code>/sys/fs/cgroup</code>中<br>
-<img src="http://asd945.com/post-images/1583416471824.jpg" alt="" loading="lazy"></p>
+<img src="https://asd945.com/post-images/1583416471824.jpg" alt="" loading="lazy"></p>
 ]]></content>
     </entry>
     <entry>
         <title type="html"><![CDATA[数组下标为什么从零开始]]></title>
-        <id>http://asd945.com/shu-zu-xia-biao-wei-shi-me-cong-ling-kai-shi/</id>
-        <link href="http://asd945.com/shu-zu-xia-biao-wei-shi-me-cong-ling-kai-shi/">
+        <id>https://asd945.com/shu-zu-xia-biao-wei-shi-me-cong-ling-kai-shi/</id>
+        <link href="https://asd945.com/shu-zu-xia-biao-wei-shi-me-cong-ling-kai-shi/">
         </link>
         <updated>2020-02-27T14:14:27.000Z</updated>
         <summary type="html"><![CDATA[<p>😃🙃</p>
@@ -495,7 +495,7 @@ pthread_mutex</p>
 <p><strong>连续的内存空间和相同类型的数据</strong><br>
 正是基于这两个特性，才有了随机访问的可能。但是有利也有弊，在数组中插入和删除，是比较麻烦的一件事，因为要保证数组的<strong>内存连续性</strong>。</p>
 <p>假定这是一个长度为10的int类型数组， 一个int是4个字节，假定第一个的地址是1000，那么以此类推每个元素的地址如下。<br>
-<img src="http://asd945.com/post-images/1582816193789.jpg" alt="" loading="lazy"></p>
+<img src="https://asd945.com/post-images/1582816193789.jpg" alt="" loading="lazy"></p>
 <pre><code>&amp;a[i] = &amp;a[0] + i * type_size
 </code></pre>
 <h3 id="数组和链表的区别">数组和链表的区别</h3>
@@ -529,8 +529,8 @@ pthread_mutex</p>
     </entry>
     <entry>
         <title type="html"><![CDATA[Go通道]]></title>
-        <id>http://asd945.com/go-tong-dao/</id>
-        <link href="http://asd945.com/go-tong-dao/">
+        <id>https://asd945.com/go-tong-dao/</id>
+        <link href="https://asd945.com/go-tong-dao/">
         </link>
         <updated>2020-02-26T13:24:32.000Z</updated>
         <content type="html"><![CDATA[<p>通道channel与goroutine，并驾齐驱。</p>
@@ -565,8 +565,8 @@ elem1 := &lt;-ch1
     </entry>
     <entry>
         <title type="html"><![CDATA[关于]]></title>
-        <id>http://asd945.com/about/</id>
-        <link href="http://asd945.com/about/">
+        <id>https://asd945.com/about/</id>
+        <link href="https://asd945.com/about/">
         </link>
         <updated>2019-01-25T11:09:48.000Z</updated>
         <content type="html"><![CDATA[<p>这是关于的页面，可以在这里向世界介绍你！</p>
