@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>linux的进程线程及调度 | 六巷七号</title>
+<meta name="description" content="傻逼样的去坚持，自会看见牛逼的结果">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://asdcu.github.io/favicon.ico?v=1670337054372">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://asdcu.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://asdcu.github.io">
+        <img src="https://asdcu.github.io/images/avatar.png?v=1670337054372" class="site-logo">
+        <h1 class="site-title">六巷七号</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="github.com/asdcu" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://twitter.com/asd26986328" target="_blank">
+            <i class="fab fa-twitter"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://weibo.com/u/2067638185" target="_blank">
+            <i class="fab fa-weibo"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      傻逼样的去坚持，自会看见牛逼的结果
+    </div>
+    <div class="site-footer">
+       | <a class="rss" href="https://asdcu.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">linux的进程线程及调度</h2>
+            <div class="post-date">2020-04-13</div>
+            
+            <div class="post-content">
+              <p>操作系统是管理计算机硬件与软件资源的计算程序，也是说是最大的软件。主要通过管理配置内存、决定资源供需顺序、控制输入输出等实现对计算机硬件与软件管理。另外，还提供了让用户和系统交互的操作界面。</p>
+<!-- more -->
+<p>其实操作系统的种类是多种多样的，不仅仅局限于计算机。从手机到超级计算机都是有操作系统。</p>
+<h3 id="操作系统的基本功能">操作系统的基本功能</h3>
+<ol>
+<li>统一管理计算机的基本资源。处理器资源、IO设备资源、存储器资源、处理器资源</li>
+<li>用户无需继续面向硬件接口编程。IO设备管理软件，提供文件读写接口；文件管理软件，提供操作文件接口。实现对计算机资源的抽象。</li>
+<li>提供了用户与计算机之间的接口。命令窗口形式、命令形式、系统调用形式<br>
+<img src="https://asdcu.github.io/post-images/1586789480027.jpg" alt="" loading="lazy"></li>
+</ol>
+<h3 id="操作系统的相关概念">操作系统的相关概念：</h3>
+<p>并发性、共享性、虚拟性、异步性</p>
+<h4 id="并发性与并行性">并发性与并行性</h4>
+<ul>
+<li>并行是指在同一时间间隔上发生，而并发是宏观上的并行，微观上的并发，实际上是串行的。</li>
+<li>举个例子，打英雄联盟，打团的时候的技能释放。</li>
+</ul>
+<h4 id="共享性">共享性</h4>
+<p>操作系统中的资源可供多个并发程序所使用，这种共同使用的形式称之为资源共享。</p>
+<ul>
+<li>互斥共享</li>
+<li>同时访问形式（宏观上看）</li>
+</ul>
+<h4 id="虚拟性">虚拟性</h4>
+<p>虚拟性表现为将一个物理实体转换为若干个逻辑实体。物理实体是真实存在的，逻辑实体是虚拟的。虚拟的技术主要有时分复用技术和空分复用技术。</p>
+<p>时分复用技术</p>
+<ul>
+<li>资源在时间上进行复用，不同程序并发使用</li>
+<li>多道程序分时使用计算机的硬件资源</li>
+<li>提高资源利用率</li>
+</ul>
+<p>虚拟处理器技术</p>
+<ul>
+<li>借助多道程序设计技术</li>
+<li>为每个程序简历进程</li>
+<li>多个程序分时复用处理器</li>
+</ul>
+<p>虚拟设备技术</p>
+<ul>
+<li>物理设备虚拟为多个逻辑设备</li>
+<li>每个程序占用一个逻辑设备</li>
+<li>多个程序通过逻辑设备并发访问</li>
+</ul>
+<p>空分复用技术</p>
+<p>虚拟磁盘、虚拟内存。</p>
+<ul>
+<li>虚拟磁盘 磁盘分区，C、D、E等逻辑盘</li>
+<li>从逻辑上扩大程序的存储容量</li>
+<li>使用比实际更大的容量</li>
+</ul>
+<h4 id="异步性">异步性</h4>
+<p>操作系统的执行都是走走停停而并非一气呵成的，并且以不可预知的速度向前推荐。</p>
+<h2 id="为什么需要进程">为什么需要进程</h2>
+<p>没有配置OS之前，资源属于当前运行的程序。<br>
+配置OS之后，引入多道程序的概念<br>
+合理的隔离资源、运行环境、提升资源利用率的基本单位。</p>
+<h3 id="进程">进程</h3>
+<p>进程是系统进行资源分配和调度的基本单位<br>
+进程作为程序独立运行的载体保障程序正常执行<br>
+进程的存在使得操作系统资源利用率大幅提升</p>
+<p><strong>多道程序设计概念</strong></p>
+<h3 id="进程的实体">进程的实体</h3>
+<p>主存终端的进程形态，PCB进程控制块</p>
+<table>
+<thead>
+<tr>
+<th>标识符</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>状态</td>
+</tr>
+<tr>
+<td>优先级</td>
+</tr>
+<tr>
+<td>程序计数器</td>
+</tr>
+<tr>
+<td>内存指针</td>
+</tr>
+<tr>
+<td>上下文数据</td>
+</tr>
+<tr>
+<td>IO状态信息</td>
+</tr>
+<tr>
+<td>记账信息</td>
+</tr>
+<tr>
+<td>...</td>
+</tr>
+</tbody>
+</table>
+<p>标识符  进程ID，用于区别其他进程<br>
+状态 运行态<br>
+程序计数器 指向进程即将要执行的下一条指令的地址<br>
+内存指针 程序代码、进程数据的相关指针<br>
+上下文数据  进程执行时处理器存储的数据<br>
+IO状态信息 被进程IO操作所占用的文件列表<br>
+记账信息 使用处理器时间、时钟数总和</p>
+<p>PCB是操作系统进行调度经常会被读取的信息<br>
+PCB是常驻内存，存放在系统专门开放的PCB区域</p>
+<h3 id="为什么要有进程">为什么要有进程</h3>
+<p>多道程序环境下，程序的执行属于并发执行，此时它们将失去封闭性，并具有间断性，以及其运行结果不可再现性的特征。由此，决定了通常的程序是不能参与并发执行的，否则，程序的运行也就失去了意义。为了使程序并发执行，并且可以对并发执行的程序加以描述和控制，引入了进程的概念。</p>
+<h3 id="进程-2">进程</h3>
+<p>进程是操作系统进行资源分配和调度的基本单位<br>
+线程是操作系统进行运行调度的最小单位<br>
+包含在进程之中，是进程实际运行工作的单位，一个进程可以并发多个线程，每个线程执行不同的任务。</p>
+<p>进程的线程共享进程资源。</p>
+<p>进程的实体。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>进程</th>
+<th>线程</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>资源</td>
+<td>资源分配的基本单位</td>
+<td>不拥有资源</td>
+</tr>
+<tr>
+<td>调度</td>
+<td>独立调度的基本单位</td>
+<td>独立调度的最小单位</td>
+</tr>
+<tr>
+<td>系统开销</td>
+<td>进程系统开销大</td>
+<td>线程系统开销小</td>
+</tr>
+<tr>
+<td>通信</td>
+<td>进程IPC</td>
+<td>读写同一进程数据通信</td>
+</tr>
+</tbody>
+</table>
+<h3 id="进程状态管理">进程状态管理</h3>
+<p>创建 就绪 阻塞 执行 终止</p>
+<p>就绪状态</p>
+<ul>
+<li>进程被分配到CPU以外的所有必要资源后</li>
+<li>只要获得CPU的使用权，就可以立即运行</li>
+<li>其他资源都准备好、只差CPU资源的状态为就绪状态。内存、栈空间、IO等资源</li>
+<li>在一个系统中多个处于就绪状态的进程通常排成一个队列。这个队列称之为就绪队列</li>
+</ul>
+<p>执行状态</p>
+<ul>
+<li>进程获得CPU，其程序正在执行成为执行状态</li>
+<li>在单核处理机中，在某个时刻只能有一个进程处于执行状态</li>
+</ul>
+<p>阻塞状态</p>
+<ul>
+<li>进程因某种原因：其他设备未就绪而无法继续执行</li>
+<li>从而放弃CPU的状态成为阻塞状态</li>
+</ul>
+<p>就绪和执行的切换。 （进程调度、时间片用完）<br>
+阻塞 执行（IO请求 ）<br>
+阻塞 就绪 IO完成</p>
+<p>创建：分配PCB、插入就绪队列。拥有PCB,但其他资源尚未就绪的状态称为创建状态。操作系统提供fork函数接口创建进程。<br>
+终止：系统清理、归还PCB 。系统清理或者归还PCB的状态称为终止状态<br>
+<img src="https://asdcu.github.io/post-images/1586874748868.jpg" alt="" loading="lazy"></p>
+<h3 id="进程同步">进程同步</h3>
+<ul>
+<li>生产者消费者问题<br>
+<img src="https://asdcu.github.io/post-images/1586875297431.jpg" alt="" loading="lazy"></li>
+</ul>
+<p>count是存储在cache中，也就是临界区，临界资源</p>
+<ul>
+<li>哲学家进餐问题<br>
+五个哲学家，一个圆桌，五个碗，五只筷子。</li>
+</ul>
+<p>五个哲学家同时拿起五个筷子，五个哲学家都在等待右边的筷子释放，五个哲学家饿死。死锁。</p>
+<p>根源问题是：彼此之间没有通信。需要进程间的同步。对竞争资源在多进程间进行使用次序的协调，使得并发执行的多个进程之间可以有效使用资源想和合作。</p>
+<p>进程同步的原则。</p>
+<p>临界资源指的是一些虽作为共享资源却又无法同时被多个线程共享的资源。当有进程在使用临界资源时，其他进程必须依据操作系统的同步机制等待占用进程释放该共享资源才可重新竞争使用该共享资源。</p>
+<ul>
+<li>空闲让步：资源无法占用，允许使用</li>
+<li>忙则等待：资源有占用，请求进程等待</li>
+<li>有限等待：保证有限等待时间能够使用资源</li>
+<li>让权等待：等待时候，进程需要让出CPU</li>
+</ul>
+<p>同步方法：</p>
+<ul>
+<li>消息队列</li>
+<li>共享存储</li>
+<li>信号量</li>
+</ul>
+<p>进程间多线程也需要同步<br>
+线程同步的方法</p>
+<ul>
+<li>互斥量</li>
+<li>读写锁</li>
+<li>自旋锁</li>
+<li>条件变量</li>
+</ul>
+<ol>
+<li>信号 （事件）SIGINT信号灯</li>
+<li>管道PIPE</li>
+<li>命名管道FIFO</li>
+<li>信号量</li>
+<li>消息队列</li>
+<li>共享内存</li>
+</ol>
+<h3 id="linux进程类型">linux进程类型</h3>
+<ul>
+<li>前台进程 具有终端，可以和用户进行交互的进程</li>
+<li>后台进程 没有和用户进行交互，优先级也比前台进程低,用&amp;</li>
+<li>守护进程 进程名字一般以d结尾都是守护进程 crond httpd sshd mysqld systemd</li>
+</ul>
+<h3 id="进程创建与消亡相关的api">进程创建与消亡相关的API</h3>
+<ul>
+<li>system 通过shell启动一个新进程</li>
+<li>exec 以代替当前进程映像的方式启动一个新的进程</li>
+<li>fork 以复制当前进程映像的方式启动一个子进程，子进程中fork()返回0，父进程fork返回子进程iD</li>
+<li>wait 父进程挂起，等待子进程结束</li>
+<li>孤儿进程与僵尸进程</li>
+</ul>
+<h3 id="进程标记">进程标记</h3>
+<ul>
+<li>进程ID 进程的唯一标识符，每个进程拥有不同的ID</li>
+<li>进程ID 是非负整数，最大值由操作系统限定</li>
+<li>调用fork接口创建进程</li>
+</ul>
+<p>进程的父子关系可以通过pstree来进行查看<br>
+ID为0的进程为idle进程。是系统创建的第一个进程<br>
+ID为1的进程为init进程，是0号进程的子进程，完成系统的初始化。<br>
+init进程是所有用户的祖先进程</p>
+<h3 id="进程的状态标记">进程的状态标记</h3>
+<table>
+<thead>
+<tr>
+<th>状态符号</th>
+<th>状态说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R</td>
+<td>(TASK_Running) ，进程正处于运行状态</td>
+</tr>
+<tr>
+<td>S</td>
+<td>（TASK_INTERRUPTIBLE）,进程正处于睡眠状态</td>
+</tr>
+<tr>
+<td>D</td>
+<td>TASK_UNINTERRUPTIBLE,进程正处于IO等待的睡眠状态</td>
+</tr>
+<tr>
+<td>T</td>
+<td>TASK STOP，进程正处于暂停状态</td>
+</tr>
+<tr>
+<td>Z</td>
+<td>TASK_DEAD or TASK_ZOMBIE，进程正处于退出状态，或僵尸进程</td>
+</tr>
+</tbody>
+</table>
+<p>ps aux | grep python<br>
+ps -u asd<br>
+ps -ef --forest<br>
+ps -aux --sort=pcpu pmem</p>
+<p>top</p>
+<p>PID 进程号<br>
+PR 进程优先级<br>
+VIRT 进程虚拟内存</p>
+<h3 id="进程调度">进程调度</h3>
+<p>计算机通过决策决定哪个就绪进程可以获得CPU使用权。多道程序设计</p>
+<p>保留旧进程的运行信息，清除旧进程。收拾包袱<br>
+选择新的进程，准备运行环境并分配CPU，新进驻</p>
+<p>就绪队列的排队机制<br>
+选择运行进程的委派机制<br>
+新老进程的委派机制</p>
+<p>就绪队列。 新老进程的上下文切换机制。</p>
+<p>老进程放到主存，新进程放到Cache。</p>
+<p>抢占式调度<br>
+非抢占式调度</p>
+<p>进程调度算法：</p>
+<ul>
+<li>先来先服务</li>
+<li>短进程优先</li>
+<li>高优先权调度算法</li>
+<li>时间片轮转算法  比较合理的</li>
+</ul>
+<h3 id="死锁">死锁</h3>
+<p>两个或两个以上的进程在执行过程中，由于资源竞争或者由于彼此通信而造成的一种阻塞现象，若无外力作用，它们都无法推行下去。此时系统处于死锁状态或产生了死锁。这些互相在等待的进程成为死锁进程。</p>
+<p>产生原因：</p>
+<ul>
+<li>相互竞争资源 等待请求的资源被释放，自身占用资源不释放。</li>
+<li>进程调度顺序不当</li>
+</ul>
+<p>死锁产生的四个必要条件</p>
+<ul>
+<li>互斥条件 进程对资源的使用是排他性的使用，只能由一个进程使用</li>
+<li>请求保持条件 至少保持一个资源，又提出新的资源请求，新资源被占用，请求阻塞，被阻塞的进程不释放保持的资源</li>
+<li>不可剥夺条件 进程在获得的资源在未使用的前不能被剥夺，只能由自身释放</li>
+<li>环路等待条件 资源唤醒等待链</li>
+</ul>
+<p>死锁的处理</p>
+<ul>
+<li>预防死锁的方法</li>
+<li>银行家算法</li>
+</ul>
+<ul>
+<li>系统规定进程运行之前，一次性申请所有需要的资源</li>
+<li>当一个进程请求新的资源得不到满足，必须释放占有的资源</li>
+<li>可用资源限行排序，申请必须按照需要递增申请</li>
+</ul>
+<p>所需资源表<br>
+已分配资源表<br>
+可分配资源表</p>
+<p>(所需资源表 - 已分配资源表) == 可分配资源表</p>
+<p>互斥量是最简单的线程同步的方法。<br>
+pthread_mutex</p>
+<p>自旋锁</p>
+<p>等待资源的时候不释放CPU，自旋锁不适合于单核CPU。</p>
+<p>读写锁。特殊的自旋锁</p>
+<p>条件变量</p>
+
+            </div>
+            
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

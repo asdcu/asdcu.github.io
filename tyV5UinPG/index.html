@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>GO学习笔记汇总（一） | 六巷七号</title>
+<meta name="description" content="傻逼样的去坚持，自会看见牛逼的结果">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://asdcu.github.io/favicon.ico?v=1670337054372">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://asdcu.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://asdcu.github.io">
+        <img src="https://asdcu.github.io/images/avatar.png?v=1670337054372" class="site-logo">
+        <h1 class="site-title">六巷七号</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="github.com/asdcu" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://twitter.com/asd26986328" target="_blank">
+            <i class="fab fa-twitter"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://weibo.com/u/2067638185" target="_blank">
+            <i class="fab fa-weibo"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      傻逼样的去坚持，自会看见牛逼的结果
+    </div>
+    <div class="site-footer">
+       | <a class="rss" href="https://asdcu.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">GO学习笔记汇总（一）</h2>
+            <div class="post-date">2021-01-22</div>
+            
+            <div class="post-content">
+              <blockquote>
+<p>最近这两年开始&quot;真正&quot;使用Golang，算下来也挺久的了，最早接触是13年刚上大学的时候。从13年到现在，期间也学习和重度使用过其他语言，如Java、PHP、Python等。但是并没真的去总结过。本文内容交多，可能分几小篇来写。</p>
+</blockquote>
+<h3 id="0x01-prepare">0x01 Prepare</h3>
+<p><strong>Environment varialbes</strong></p>
+<p>Go的环境变量可以通过<code>go env</code>进行查看</p>
+<ul>
+<li>GOOS：程序构建环境的目标操作系统(可以进行交叉编译)</li>
+<li>GOARCH：程序构建环境的目标计算架构</li>
+<li>GOHOSTOS：程序运行的目标操作系统</li>
+<li>GOHOSTARCH：程序运行环境的目标计算架构</li>
+<li>GOROOT：Go语言安装根目录的路径，也就是GO语言的安装路径</li>
+<li>GOPATH：Golang工作区目录（可以包含多个目录）路径，也就是我们自己定义的工作空间</li>
+</ul>
+<p>每个GOPATH都包含三个子文件夹</p>
+<pre><code class="language-shell">workspace //GOPATH
+|-- bin // 默认的可执行文件安装目录
+|-- pkg // 默认的归档文件安装目录
+|-- src  // 源代码目录
+</code></pre>
+<ul>
+<li>GOBIN：Golang可执行文件（go install后的二进制文件）<strong>executable file</strong> 的路径
+<ul>
+<li>设置GOBIN，编译后的可执行文件则不会安装在GOPATH下的bin目录</li>
+<li>如果GOPATH有多个工作区目录，则必须设置GOPATH</li>
+</ul>
+</li>
+</ul>
+<p>其中<code>GOPATH</code>背后的概念是最多，也是最重要。那么GOPATH有什么意义呢？（实际在有Go1.11版本引入Module弱化了GOPATH）实际也是面试中扣语言点来问需要问的考点吧。</p>
+<p><code>GOPATH</code>可以理解成GO语言的工作目录，它的值就是一个目录的路径，也可以是多个目录的路径，每个目录都代表Go语言的一个工作区。开发的时候需要利用这个工作区，去放置Go语言的源码文件（source file）、安装后的归档文件（archive file，以“.a”为拓展名的文件）。要理解这一点，需要搞懂Go语言的源码组织方式。</p>
+<p>在Go语言中，<strong>包</strong>是代码的基本组织单位。<em>Go的包是没有子包的概念</em>。在文件系统中，代码包其实与目录是一一对应（当然也不是绝对）。一个代码包可以包含任意个以<code>.go</code>为拓展名的源码文件，这些源码文件都需要声明属于同一个代码包（test比较特殊）。代码包的名称一般会与源码文件所在的目录同名，如果不同名，在构建和安装过程中，以代码报名为准（cmd/main的报名通常是应用的名字）。每个代码包都有导入路径，一个代码包的导入路径就是从<code>src</code>的子目录到该包的实际存储位置的相对路径。所以总结起来，Go语言源码的组织方式就是以环境变量GOPATH、工作区、src目录和代码包为主线。</p>
+<p>** Command **<br>
+compiler 编译指令</p>
+<ul>
+<li>go build</li>
+<li>go install</li>
+<li>go clean</li>
+<li>go run</li>
+<li>go test</li>
+</ul>
+<p>packageer 包管理</p>
+<ul>
+<li>go get</li>
+<li>go mod</li>
+<li>go list</li>
+</ul>
+<p>analyzer 分析工具</p>
+<ul>
+<li>go vet</li>
+<li>go tool pprof</li>
+</ul>
+<h3 id="0x02-build-procedure">0x02 Build Procedure</h3>
+<p>程序的一般过程：编辑、编译、链接、运行。</p>
+<p>go <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mrow><mi>s</mi><mi>u</mi><mi>b</mi><mi>c</mi><mi>o</mi><mi>m</mi><mi>m</mi><mi>a</mi><mi>n</mi><mi>d</mi></mrow><mo>−</mo><mi>x</mi><mi mathvariant="normal">观</mi><mi mathvariant="normal">察</mi><mi mathvariant="normal">编</mi><mi mathvariant="normal">译</mi><mi mathvariant="normal">过</mi><mi mathvariant="normal">程</mi><mi mathvariant="normal">。</mi><mi mathvariant="normal">‘</mi><mi>r</mi><mi>u</mi><mi>n</mi><mi mathvariant="normal">‘</mi><mi mathvariant="normal">、</mi><mi mathvariant="normal">‘</mi><mi>b</mi><mi>u</mi><mi>i</mi><mi>l</mi><mi>d</mi><mi mathvariant="normal">‘</mi><mi mathvariant="normal">、</mi><mi mathvariant="normal">‘</mi><mi>i</mi><mi>n</mi><mi>s</mi><mi>t</mi><mi>a</mi><mi>l</mi><mi>l</mi><mi mathvariant="normal">‘</mi><mi mathvariant="normal">三</mi><mi mathvariant="normal">个</mi><mi mathvariant="normal">子</mi><mi mathvariant="normal">命</mi><mi mathvariant="normal">令</mi><mi mathvariant="normal">都</mi><mi mathvariant="normal">是</mi><mi mathvariant="normal">县</mi><mi mathvariant="normal">创</mi><mi mathvariant="normal">建</mi><mi mathvariant="normal">临</mi><mi mathvariant="normal">时</mi><mi mathvariant="normal">工</mi><mi mathvariant="normal">作</mi><mi mathvariant="normal">区</mi><mi mathvariant="normal">目</mi><mi mathvariant="normal">录</mi><mi mathvariant="normal">，</mi><mi mathvariant="normal">使</mi><mi mathvariant="normal">用</mi></mrow><annotation encoding="application/x-tex">{subcommand} -x 观察编译过程。`run`、`build`、`install` 三个子命令都是县创建临时工作区目录，使用</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.77777em;vertical-align:-0.08333em;"></span><span class="mord"><span class="mord mathdefault">s</span><span class="mord mathdefault">u</span><span class="mord mathdefault">b</span><span class="mord mathdefault">c</span><span class="mord mathdefault">o</span><span class="mord mathdefault">m</span><span class="mord mathdefault">m</span><span class="mord mathdefault">a</span><span class="mord mathdefault">n</span><span class="mord mathdefault">d</span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault">x</span><span class="mord cjk_fallback">观</span><span class="mord cjk_fallback">察</span><span class="mord cjk_fallback">编</span><span class="mord cjk_fallback">译</span><span class="mord cjk_fallback">过</span><span class="mord cjk_fallback">程</span><span class="mord cjk_fallback">。</span><span class="mord">‘</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">u</span><span class="mord mathdefault">n</span><span class="mord">‘</span><span class="mord cjk_fallback">、</span><span class="mord">‘</span><span class="mord mathdefault">b</span><span class="mord mathdefault">u</span><span class="mord mathdefault">i</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">d</span><span class="mord">‘</span><span class="mord cjk_fallback">、</span><span class="mord">‘</span><span class="mord mathdefault">i</span><span class="mord mathdefault">n</span><span class="mord mathdefault">s</span><span class="mord mathdefault">t</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord">‘</span><span class="mord cjk_fallback">三</span><span class="mord cjk_fallback">个</span><span class="mord cjk_fallback">子</span><span class="mord cjk_fallback">命</span><span class="mord cjk_fallback">令</span><span class="mord cjk_fallback">都</span><span class="mord cjk_fallback">是</span><span class="mord cjk_fallback">县</span><span class="mord cjk_fallback">创</span><span class="mord cjk_fallback">建</span><span class="mord cjk_fallback">临</span><span class="mord cjk_fallback">时</span><span class="mord cjk_fallback">工</span><span class="mord cjk_fallback">作</span><span class="mord cjk_fallback">区</span><span class="mord cjk_fallback">目</span><span class="mord cjk_fallback">录</span><span class="mord cjk_fallback">，</span><span class="mord cjk_fallback">使</span><span class="mord cjk_fallback">用</span></span></span></span>GOROOT/libexec/pkg/tool/<span class='katex-error' title='ParseError: KaTeX parse error: Expected group after &#039;_&#039; at position 5: GOOS_̲'>GOOS_</span>GOARCH/complie （go tool compile）工具编译生成名为 command-line-arguments库文件，然后通过<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>G</mi><mi>O</mi><mi>R</mi><mi>O</mi><mi>O</mi><mi>T</mi><mi mathvariant="normal">/</mi><mi>l</mi><mi>i</mi><mi>b</mi><mi>e</mi><mi>x</mi><mi>e</mi><mi>c</mi><mi mathvariant="normal">/</mi><mi>p</mi><mi>k</mi><mi>g</mi><mi mathvariant="normal">/</mi><mi>t</mi><mi>o</mi><mi>o</mi><mi>l</mi><mi mathvariant="normal">/</mi></mrow><annotation encoding="application/x-tex">GOROOT/libexec/pkg/tool/</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault">G</span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="mord">/</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">i</span><span class="mord mathdefault">b</span><span class="mord mathdefault">e</span><span class="mord mathdefault">x</span><span class="mord mathdefault">e</span><span class="mord mathdefault">c</span><span class="mord">/</span><span class="mord mathdefault">p</span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="mord">/</span><span class="mord mathdefault">t</span><span class="mord mathdefault">o</span><span class="mord mathdefault">o</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord">/</span></span></span></span>GOOS_$GOARCH/link (go tool link)工具链接生成目标可执行文件。</p>
+<p>先来说说<code>go run</code>。Python和Lua语言可以在不输出二进制的情况下，将代码直接使用虚拟机进行运行。Go语言虽然不使用虚拟机，但可使用<code>go run</code>指令达到同样的效果。<code>go run</code>命令会直接编译源码，并且直接执行源码的main()函数，不会在当前目录留下任何可执行文件。可执行文件被放在临时文件中被执行，工作目录被设置为当前目录</p>
+<h3 id="references">References</h3>
+<ul>
+<li><a href="https://golang.google.cn/ref/spec">https://golang.google.cn/ref/spec</a></li>
+</ul>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://asdcu.github.io/tag/L3gtqY2Q0/" class="tag">
+                    go
+                  </a>
+                
+              </div>
+            
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

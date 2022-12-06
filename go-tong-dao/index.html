@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Go通道 | 六巷七号</title>
+<meta name="description" content="傻逼样的去坚持，自会看见牛逼的结果">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://asdcu.github.io/favicon.ico?v=1670337054372">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://asdcu.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://asdcu.github.io">
+        <img src="https://asdcu.github.io/images/avatar.png?v=1670337054372" class="site-logo">
+        <h1 class="site-title">六巷七号</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="github.com/asdcu" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://twitter.com/asd26986328" target="_blank">
+            <i class="fab fa-twitter"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://weibo.com/u/2067638185" target="_blank">
+            <i class="fab fa-weibo"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      傻逼样的去坚持，自会看见牛逼的结果
+    </div>
+    <div class="site-footer">
+       | <a class="rss" href="https://asdcu.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">Go通道</h2>
+            <div class="post-date">2020-02-26</div>
+            
+            <div class="post-content">
+              <p>通道channel与goroutine，并驾齐驱。</p>
+<blockquote>
+<p>Don't communicate by sharing memory;share momory by communicating.</p>
+</blockquote>
+<p>通道的值本身就是并发安全，也是Go语言自带的、唯一一个可以满足并发安全的类型。可以利用通道在不同goroutine之间传递数据。</p>
+<p>声明并初始化一个通道时，使用Go的内建函数make来初始化，就像make用来初始化一个切片一样。</p>
+<pre><code>var a chan int
+</code></pre>
+<p>类型字面量<code>chan int</code>,其中chan是标识通道类型的关键字，而int则说明通道类型的元素类型。</p>
+<pre><code>var a = make(chan int, 1)
+</code></pre>
+<p>初始化通道的时候，make还可以接收一个参数int,这个参数代表int的容量。</p>
+<p>当参数为0时候，通道为无缓冲通道。当参数大于0，为缓冲通道。</p>
+<p>这里的通道相当于一个先进先出队列（FIFO）。也就是说通道的元素是按照严格的发送顺序。先发送的一定先被接收。</p>
+<p>发送和接收都用到操作符<code>&lt;-</code>,表示了通道数据的流动方向</p>
+<pre><code>ch1 := make(chan int, 3)
+ch1 &lt;- 2
+ch1 &lt;- 1
+ch1 &lt;- 7
+elem1 := &lt;-ch1
+</code></pre>
+<p>通道的发送和接收都有哪些特性</p>
+<ol>
+<li>对于同一个通道，发送操作之间是互斥的，接收操作之间也是互斥的</li>
+<li>发送操作和接收操作对元素处理都是不可分割</li>
+<li>发送操作在完成之前会被阻塞掉，接收操作在完成之前也会阻塞掉</li>
+</ol>
+<p>元素从外界进入通道时会被复制，更具体的说是元素的副本。</p>
+
+            </div>
+            
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

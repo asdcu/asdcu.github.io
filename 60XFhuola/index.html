@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Go语言的error处理 | 六巷七号</title>
+<meta name="description" content="傻逼样的去坚持，自会看见牛逼的结果">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://asdcu.github.io/favicon.ico?v=1670337054372">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://asdcu.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://asdcu.github.io">
+        <img src="https://asdcu.github.io/images/avatar.png?v=1670337054372" class="site-logo">
+        <h1 class="site-title">六巷七号</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="github.com/asdcu" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://twitter.com/asd26986328" target="_blank">
+            <i class="fab fa-twitter"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://weibo.com/u/2067638185" target="_blank">
+            <i class="fab fa-weibo"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      傻逼样的去坚持，自会看见牛逼的结果
+    </div>
+    <div class="site-footer">
+       | <a class="rss" href="https://asdcu.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">Go语言的error处理</h2>
+            <div class="post-date">2021-02-05</div>
+            
+            <div class="post-content">
+              <h3 id="error-vs-exception">Error Vs Exception</h3>
+<p>各个语言的错误处理</p>
+<ul>
+<li>C 单返回值，一般通过传递指针作为入参，返回值为int表示成功还是失败</li>
+<li>C++ 引入exception，但是无法知道被调用方法会抛出什么异常</li>
+<li>Java 引入了checked exception，方法的所有者必须申明，调用者必须处理</li>
+</ul>
+<p>先说说C语言，虽然用得不多，但是会读一些优秀框架的源码，基本套路是通过函数的返回值标识是否有错，然后通过全局的 errno 变量加一个 errstr 的数组来告诉你为什么出错。至于多返回值，则会通过入参传递指针。但是这样做的缺点很明显，很容易忘记检查错误。如nginx，<code>ngx_int_t ngx_create_path(ngx_file_t *file, ngx_path_t *path)</code>。C++没怎么用过，略过。</p>
+<p>再来说说Java。Java使用的是<code>try-catch-finally</code>通过使用异常的方式来处理错误。这已经比C语言处理进了一大步。因为函数接口在 input（参数）和 output（返回值）以及错误处理的语义是比较清楚的，同时正常逻辑得代码可以跟错误处理和资源清理的代码分开，提高了代码的可读性。<code>try-catch-finally</code>还有个显著的优势就是必须要显式<code>catch</code>错误（即使要忽略也需要也要先catch住再ignore）。不过，函数接口中显示声明了<code>throw Execption</code>，即使<code>Execption</code>是个对象，可以多态catch，如果不catch，就必须往上层主动声明<code>throw</code>，这样带来的后果就是，最顶层函数（可能是启动函数）抛出大量异常是司空见惯。除此之外Java还有<code>java.Eror &amp; java.RuntimeException</code>，这两货是完全不需要进行声明就可以主动catch，也就是可以通过<code>catch (e Exception) { // ignore }</code>屏蔽所有的error，这时候又让Exception变成了uncheck了。</p>
+<p>Go的Error处理</p>
+<ul>
+<li><strong>支持多参数返回，不引入exception</strong>。在函数签名带上error，交由调用者处理。</li>
+<li>引入<code>panic</code></li>
+</ul>
+<p><code>panic</code>总是对您的程序致命。在<code>panic</code>中，您永远不会认为呼叫者可以解决问题。因此，只能在特殊情况下使用<code>panic</code>，在这种情况下，您的代码是不可能的，或者任何集成您代码的人都可以继续，必须通过发版更新fixed掉引起这个<code>panic</code>的具体问题。因为recovery获取是没有堆栈信息，是无法保存上下文。总的来说，就是以下4点。</p>
+<ul>
+<li>简单</li>
+<li>考虑失败而非成功</li>
+<li>没有隐藏的控制流</li>
+<li>完全交给上层控制error</li>
+<li><strong>Error are values</strong></li>
+</ul>
+<h3 id="error">Error</h3>
+<p>Go的Error就是一个普通的接口，普通的值。定义在<code>$GOROOT/src/builtin/biiltin.go</code></p>
+<pre><code class="language-go">// The error built-in interface type is the conventional interface for
+// representing an error condition, with the nil value representing no error.
+type error interface {
+	Error() string
+}
+</code></pre>
+<p>通常可以使用<code>errors.New()</code> 来返回一个对象(<code>$GOROT/src/errors/errors.go</code>)</p>
+<pre><code class="language-go">// New returns an error that formats as the given text.
+// Each call to New returns a distinct error value even if the text is identical.
+func New(text string) error {
+	return &amp;errorString{text}
+}
+
+// errorString is a trivial implementation of error.
+type errorString struct {
+	s string
+}
+
+func (e *errorString) Error() string {
+	return e.s
+}
+</code></pre>
+<p>基础库中也定义了大量的error。如<code>bufio</code>这个包里面</p>
+<pre><code class="language-go">var (
+	ErrInvalidUnreadByte  = errors.New(&quot;bufio: invalid use of UnreadByte&quot;)
+	ErrInvalidUnreadRune = errors.New(&quot;bufio: invalid use of UnreadRune&quot;)
+	ErrBufferFull             = errors.New(&quot;bufio: buffer full&quot;)
+	ErrNegativeCount      = errors.New(&quot;bufio: negative count&quot;)
+)
+</code></pre>
+<p>仔细看，<code>errors.New()</code>返回的是内部errorString的指针，目的是让这些包预定义的error，在判定时候是否是同一个对象。所以，在自己自定义error的时候也需要注意。看下面的例子</p>
+<pre><code class="language-go">package main
+
+import (
+	&quot;errors&quot;
+	&quot;fmt&quot;
+)
+
+type errorString string
+
+func (e errorString) Error() string {
+	return string(e)
+}
+
+func New(text string) error {
+	return errorString(text)
+}
+
+
+var ErrNamedType = New(&quot;EOF&quot;)
+var ErrStructType = errors.New(&quot;EOF&quot;)
+
+func main() {
+	if ErrNamedType == New(&quot;EOF&quot;) {
+		fmt.Println(&quot;Name Typed Err&quot;)
+	}
+
+	if ErrStructType == errors.New(&quot;EOF&quot;) {
+		fmt.Println(&quot;Struct Type Err&quot;)
+	}
+}
+</code></pre>
+<p>结果是：<strong>Name Typed Err</strong></p>
+<p>再看一个例子</p>
+<pre><code class="language-go">package main
+
+import (
+	&quot;fmt&quot;
+)
+
+type errorStruct struct {
+	s string
+}
+
+func (e errorStruct) Error() string {
+	return e.s
+}
+
+func New(text string) error {
+	return errorStruct{text}
+}
+
+
+var ErrNamedType = New(&quot;EOF&quot;)
+
+func main() {
+	if ErrNamedType == New(&quot;EOF&quot;) {
+		fmt.Println(&quot;Name Typed Err&quot;)
+	}
+}
+</code></pre>
+<p>结果是：<strong>Name Typed Err</strong>。这里仍然能够判等是因为，虽然两个对象是不相等，但是底层的字符串s是相同。</p>
+<h3 id="error的处理">Error的处理</h3>
+<h4 id="sentinal-error">Sentinal Error</h4>
+<p>类似上文提到的<code>buifo.ErrBufferFull</code>，<code>io.EOF</code>，这种预定义的错误，被称为<code>Sentinal Error</code>。</p>
+<p>使用这种预定义的error的最不好的一个地方就是必须通过调用方来进行<code>==</code>来进行判断。这里带来了两个问题，一者是当想要提供更多的上下文的时候，就会破坏相等性检查。甚至一些有意义的<code>fmt.Errorf</code>携带一些上下文，也会破坏调用者的==，调用者将被迫查看<code>error.Error()</code>的输出，以查看是否相等。这样做是十分危险的做法，当某一天所依赖的包的<code>error.Error()</code>的输出改变的时候，就会出现判等失败。二者是给依赖倒置带来新的困难。上层业务抽象的error，需要对下层的不同业务进行特殊判断，强行耦合了两个包(库)之间依赖，容易环回引用，破坏封装性。</p>
+<p>当然，对于大量的基础库，也就是不依赖第三方的库可以采用这种哨兵error，否则都是不推荐模仿这种方式去定义error。</p>
+<h4 id="error-types">Error Types</h4>
+<p>自定义error实现error的接口类型，携带上下文。如<code>os.PathError</code></p>
+<pre><code class="language-go">// PathError records an error and the operation and file path that caused it.
+type PathError struct {
+	Op   string
+	Path string
+	Err  error
+}
+
+func (e *PathError) Error() string { return e.Op + &quot; &quot; + e.Path + &quot;: &quot; + e.Err.Error() }
+</code></pre>
+<p>调用者要使用类型断言和类型switch，就要让自定义的error变为public。这种模型会导致调用者和生产者之间产生强耦合。虽然这种错误比sentinal error要好一些(可以携带上下文)，但是error types 共享errors values许多相同的问题。也是要慎用。</p>
+<h4 id="opaque-errors">Opaque errors</h4>
+<p>底层只返回error这个类型，并不返回具体的type，这样代码和调用者之间的耦合最少。作为调用者，我觉得是应该是关心操作的结果，成功或者是失败，而不需要花更多的心智去关心错误的内部。</p>
+<pre><code class="language-go">package net
+
+type Error interface {
+    error
+    Timeout() bool
+    Temporary() bool
+}
+//...
+if netErr, ok := err.(net.Error); ok &amp;&amp; netErr.Temporary() {
+    // do something
+}
+</code></pre>
+<p>另一种就是定义一个包内的interface，然后暴露一个公开的判断方法</p>
+<pre><code class="language-go">type temporary interface {
+    Temporary() bool
+}
+
+func IsTemporary(err error) bool {
+    te, ok := err.(temporary)
+    return ok &amp;&amp; te.Temporary()
+}
+</code></pre>
+<p>这里的关键是这种写法可以不导入错误的包或者实际上不了解err的底层类型的实现而只对它的行为感兴趣。</p>
+<h4 id="handle-error-gracefully">handle error gracefully</h4>
+<p>通常的错误处理方式</p>
+<ul>
+<li>简单的错误检查</li>
+</ul>
+<pre><code class="language-go">if err != nil {
+    // something went wrong
+}
+</code></pre>
+<ul>
+<li>有时候对sentinal error进行检查</li>
+</ul>
+<pre><code class="language-go">var ErrNotFound = errors.New(&quot;not found&quot;)
+if err == ErrNotFound {
+    // something wasn't found
+}
+</code></pre>
+<ul>
+<li>实现了error interface的自定义error struct，则断言更加丰富的上下文</li>
+</ul>
+<pre><code class="language-go">type NotFoundError struct {
+    Name string
+}
+
+func (e *NotFoundError) Error() string { return e.Name + &quot;: not found&quot;}
+
+if  e, ok := err.(*NotFoundError); ok {
+    // e.Name wasn't found
+}
+
+</code></pre>
+<ul>
+<li>在函数堆栈中添加上下文信息</li>
+</ul>
+<pre><code class="language-go">if err != nil {
+    return fmt.Errorf(&quot;xxxx %v: %v&quot;, name, err)
+}
+</code></pre>
+<p>使用fmt.Errorf会丢弃原始错误中所有除文本错误以外的所有内容。fmt.Errorf的函数签名如下：</p>
+<pre><code class="language-go">http://golang.org/src/pkg/fmt/print.go
+
+// Errorf formats according to a format specifier and returns the string
+// as a value that satisfies error.
+func Errorf(format string, a …interface{}) error {
+    return errors.New(Sprintf(format, a…))
+}
+</code></pre>
+<p>在go1.13以后，添加了新的谓词<code>%w</code></p>
+<p>通过使用<code>github.com/pkg/errors</code>这个库，go1.13以后，官方的errors已经兼容了这个库</p>
+<p><a href="https://godoc.org/github.com/pkg/errors">github.com/pkg/errors</a></p>
+<h2 id="ref">Ref</h2>
+<ul>
+<li><a href="https://dave.cheney.net/2012/01/18/why-go-gets-exceptions-right">https://dave.cheney.net/2012/01/18/why-go-gets-exceptions-right</a></li>
+<li><a href="https://dave.cheney.net/2015/01/26/errors-and-exceptions-redux">https://dave.cheney.net/2015/01/26/errors-and-exceptions-redux</a></li>
+<li><a href="https://dave.cheney.net/2014/11/04/error-handling-vs-exceptions-redux">https://dave.cheney.net/2014/11/04/error-handling-vs-exceptions-redux</a></li>
+<li><a href="https://dave.cheney.net/2016/04/27/dont-just-check-errors-handle-them-gracefully">https://dave.cheney.net/2016/04/27/dont-just-check-errors-handle-them-gracefully</a></li>
+</ul>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://asdcu.github.io/tag/L3gtqY2Q0/" class="tag">
+                    go
+                  </a>
+                
+              </div>
+            
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

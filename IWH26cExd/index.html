@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>数组下标为什么从零开始 | 六巷七号</title>
+<meta name="description" content="傻逼样的去坚持，自会看见牛逼的结果">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://asdcu.github.io/favicon.ico?v=1670337054372">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://asdcu.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://asdcu.github.io">
+        <img src="https://asdcu.github.io/images/avatar.png?v=1670337054372" class="site-logo">
+        <h1 class="site-title">六巷七号</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="github.com/asdcu" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://twitter.com/asd26986328" target="_blank">
+            <i class="fab fa-twitter"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://weibo.com/u/2067638185" target="_blank">
+            <i class="fab fa-weibo"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      傻逼样的去坚持，自会看见牛逼的结果
+    </div>
+    <div class="site-footer">
+       | <a class="rss" href="https://asdcu.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">数组下标为什么从零开始</h2>
+            <div class="post-date">2020-02-27</div>
+            
+            <div class="post-content">
+              <h3 id="数组下标为什么从零开始">数组下标为什么从零开始</h3>
+<p>从数组存储的内存模型上来看，下标最确切的含义应该是偏移（offset）。a[0]就是0的偏移，a[k]就是k个type_size的位置。</p>
+<pre><code>a[k] = base_size + k * type_size
+</code></pre>
+<p>如果从第一个开始，就是</p>
+<pre><code>a[k] = base_size + (k - 1) * type_size
+</code></pre>
+<p>如果从1开始，需要多执行一次操作，对于cpu来说需要执行多一次的减法指令。</p>
+<h3 id="如何实现随机访问">如何实现随机访问</h3>
+<p><strong>数组是一种线性数据结构，用一组连续的内存空间，来存储一个具有相同类型的数据。</strong></p>
+<ol>
+<li>线性表<br>
+每个线性表上的数据最多油两个方向，只能有前和后两个方向，除了数组，链表、队列、栈也是限行结构。</li>
+<li>非线性表<br>
+与之对应的是非线性表，树、图、堆等。</li>
+</ol>
+<p><strong>连续的内存空间和相同类型的数据</strong><br>
+正是基于这两个特性，才有了随机访问的可能。但是有利也有弊，在数组中插入和删除，是比较麻烦的一件事，因为要保证数组的<strong>内存连续性</strong>。</p>
+<p>假定这是一个长度为10的int类型数组， 一个int是4个字节，假定第一个的地址是1000，那么以此类推每个元素的地址如下。<br>
+<img src="https://asdcu.github.io/post-images/1582816193789.jpg" alt="" loading="lazy"></p>
+<pre><code>&amp;a[i] = &amp;a[0] + i * type_size
+</code></pre>
+<h3 id="数组和链表的区别">数组和链表的区别</h3>
+<ul>
+<li>链表适合插入、删除，时间复杂度为O(1)</li>
+<li>数组支持随机访问，根据下标访问的时间复杂度为O(1)</li>
+<li>数组的查找的时间复杂度不是O(1)</li>
+</ul>
+<h3 id="数组的插入和删除">数组的插入和删除</h3>
+<p>在指定位置进行插入</p>
+<ul>
+<li>在数组末端进行插入O(1)</li>
+<li>数组第k个位置进行插入,需要把k+1后的元素往后挪，所以这里的时间复杂度可能是O(n)</li>
+<li>平均复杂度为(1+2+3+...+n)/n=O(n)</li>
+</ul>
+<p>如果数据是有序的，就必须要移动n-k+1个元素，如果是无序的，仅仅是一个存储数据的集合，有一个简单的办法，直接将第k个元素，移动到数组最后面插入，然后将新的元素写入第k个位置。(快速排序的思想)</p>
+<p>删除，也是同样的道理，数组依次删除其中的某n个元素，相应地就需要挪动元素n次，复杂度也是O(n)。<br>
+<strong>这里可以先通过记录删除的数据，并非真正删除，当数组没有更多空间的时候才去进行一次真正的删除</strong></p>
+<p>这样大大减少了删除操作导致的数据搬移。</p>
+<blockquote>
+<p>拓展：JVM的垃圾回收算法</p>
+</blockquote>
+<h2 id="待补充">待补充</h2>
+<ul>
+<li>python的list</li>
+<li>go的slice和array</li>
+<li>go的垃圾回收</li>
+<li>php的垃圾回收</li>
+</ul>
+
+            </div>
+            
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

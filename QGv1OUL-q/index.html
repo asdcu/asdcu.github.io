@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>MySQL 从入门到入门 | 六巷七号</title>
+<meta name="description" content="傻逼样的去坚持，自会看见牛逼的结果">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://asdcu.github.io/favicon.ico?v=1670337054372">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://asdcu.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://asdcu.github.io">
+        <img src="https://asdcu.github.io/images/avatar.png?v=1670337054372" class="site-logo">
+        <h1 class="site-title">六巷七号</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="github.com/asdcu" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://twitter.com/asd26986328" target="_blank">
+            <i class="fab fa-twitter"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://weibo.com/u/2067638185" target="_blank">
+            <i class="fab fa-weibo"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      傻逼样的去坚持，自会看见牛逼的结果
+    </div>
+    <div class="site-footer">
+       | <a class="rss" href="https://asdcu.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">MySQL 从入门到入门</h2>
+            <div class="post-date">2022-12-01</div>
+            
+            <div class="post-content">
+              <p>相信大部分人和我一样，使用MySQL很久，但可能没有从宏观角度上去理解MySQL为什么这么设计及其适用的场景，换言之就是没有建立系统观。这一系列就是把我如何建立MySQL总体架构和关键模块的全局认知，然后再深入到具体的技术点，结合平时工作中使用MySQL所遇到的一些坑以及一些实用的姿势，记录下来。</p>
+<h4 id="逻辑架构图">逻辑架构图</h4>
+<p>MySQL的逻辑架构是一个分层架构，主要分为：网络连接层、服务层、存储引擎层。</p>
+<figure data-type="image" tabindex="1"><img src="https://asdcu.github.io/post-images/1669881353600.webp" alt="" loading="lazy"></figure>
+<p>其中，MySQL的最上层也和大部分的C/S工具或者服务一样，都有类似的架构，基本都包含连接处理、授权认证、安全等等。</p>
+<p>第二层Server层则是比较有意思，大多数MySQL的核心服务都在这一层，包括查询解析、分析、优化、缓存、以及所有的内置函数（日期、时间、数学和加密函数），所有跨存储引擎的功能都在这一层实现（触发器、存储过程、视图等等）。</p>
+<p>第三层则是存储引擎层，说白了就是负责数据存储和读取的功能，分为引擎层和存储层，引擎层负责数据的存储和读取，Server层通过API与引擎层交互，不同的存储引擎层有不同的功能，如InnoDB、MyISAM等；而存储层可以理解就是文件系统（memory引擎表示很尴尬?）。存储引擎是插件式的存在，合理地将查询处理（Query Processing）及其他系统任务（Server Task）和数据的存储/提取分离开，在使用时候根据需求（性能、特性等）来选择存储方式。</p>
+<h4 id="网络连接层">网络连接层</h4>
+<p>与大部分C/S的架构一样，都有一个客户端层，这一层主要做两件事：<br>
+‍一是连接处理。TCP三次握手建立连接，socket accept 连接。MySQL Server为了提高性能，使用线程池，减少创建线程和释放线程所花费的时间，从线程池中分配一个线程和客户端进行连接。</p>
+<p>‍二是用户认证。会校验客户端提交的账号（user）、密码（password）、客户端地址（ip）等信息进行认证处理‍，具体认证是通过 mysql.user 表校验信息，此时如果校验通过则可以进入下一步，即根据用户的权限来判断用户具体可以执行哪些操作。‍之后，这个连接里面的权限判断，都依赖此时读到的权限。换言之，此时管理员把该账号密码修改了是不会影响该连接的权限，只有断开重连才会。<br>
+‍<br>
+MySQL的连接有分长连接和短连接。短连接，简而言之就是 <strong>建立连接-&gt;数据传输-&gt;关闭</strong>，长连接则是数据传输完毕，并不会马上关闭，而是处于一个空闲状态，这个空闲状态的关闭时间是由 wait_timeout 来设置，默认是 8h，具体如何设置不在这里赘述。那么短连接与长连接又有什么区别呢？在慢速网络中使用短连接，连接的开销会很大（三次握手，权限校验，断开连接等开销），对于繁忙的系统，连接可能会收到系统端口数的限制，因为每一个连接断开后，并不会被马上被回收利用，必须要要经过一个 FIN 的等待，直到 2MSL 的时间结束才会断开连接。但是长连接也有其不好的地方，那就是资源释放问题。由于MySQL在执行过程中临时使用的内存是管理在连接对象里面的，这些资源会在连接断开的时候才释放。如果长连接积累下来，可能会导致内存占用太大，导致 MySQL OOM，从现象上看就是 MySQL 异常重启了。如果使用了长连接而长时间没有对数据库进行任何操作，那么在 timeout 后，此连接就会被 MySQL 所关闭，而客户端在执行查询的时候就会得到一个类似于 “MySQL server has gone away” 这样的错误。</p>
+<p>当然也可以从以下两个方面去解决这个问题：</p>
+<ol>
+<li>定期断开，控制闲置长连接数量，或者程序判断执行大操作后断开连接</li>
+<li>可以在每次执行一个比较大的操作后，通过执行 mysql_reset_connection 来重新初始化连接资源。</li>
+</ol>
+<p>这个过程不需要重连和重新做权限验证，但是会将连接恢复到刚刚创建完时的状态。前提是要使用MySQL5.7或更高版本。不过这个也是有副作用的，参考 <a href="https://dev.mysql.com/doc/c-api/8.0/en/mysql-reset-connection.html">官方文档</a></p>
+<h4 id="解析器-优化器">解析器、优化器</h4>
+<p>MySQL 先将查询的 SQL 语句转换成一个执行计划，再通过这个执行计划和存储引擎进行交互，这个执行计划就是整个交互的核心，其中包括：解析器，预处理器、优化器、执行器。</p>
+<p>执行器是对 SQL 语句的关键字进行解析，生成一颗对应的解析树，这个解析过程，会使用语法规则对 SQL 进行解析和校验。第一步做的是词法分析，把 SQL 语句分解为多个token(一些不可分割的元素，列)。第二步，根据识别出来的结果与 SQL 语法规则生成语法树，这个时候会判断是否符合 SQL 语法规则，如果存在语法问题，就立即返回。接下来就会进行预处理进一步校验解析树是否合法，比如：表和数据列是否在解析名字和别名存在歧义，表、列是否存在等。还会简单验证权限，但是一般验证都是比较快。</p>
+<p>解析器完了之后，语法树已经是合法的了，优化器会把这棵语法树转化成执行计划。它会根据独特的算法，找到它认为效率最高的一条路径去执行。但是经过 MySQL 优化过的执行计划，有些时候可能不会是最优的。优化器是一个非常复杂的组件，算法与策略也很多，后续再写一写。</p>
+<h4 id="执行器">执行器</h4>
+<p>分析器根据 SQL 语句生成语法树，优化器根据语法树生成执行计划，就交给执行器执行。执行器在执行之前还需要做一件事：权限验证。它会根据库名、表名、操作类型等查看当前用户是否具备权限操作，如果发现当前用户不具备权限，直接终止操作。这里的权限其实就是第一步客户端连接到连接器然后去查询出来的权限信息。<br>
+至于为什么MySQL要把真正的权限校验放在执行器阶段去执行，而不在解析器阶段处理。那是因为 SQL 语句要操作的表不只是SQL字面上那些, 例如触发器，得在执行器阶段（过程中）才能确定。优化器等其他阶段是无能为力的。<br>
+权限验证校验通过之后，如果是8.0以下本版本且命中缓存，则直接从缓存中返回数据，否则它会打开并进入存储引擎，通过存储引擎提供的API进行操作。</p>
+<h4 id="权限">权限</h4>
+<p>再来说说权限，通俗点理解，MySQL 的权限就是 MySQL 允许你做权利之内的事。MySQL 服务器通过权限表来控制用户对数据库的访问，权限表存放在mysql数据库中，主要有6张表：use、db、tables_priv、columns_priv、procs_priv、proxies_priv。这个权限限制主要分为两个阶段：</p>
+<ol>
+<li>有没有权限链接上来</li>
+<li>有没有权限执行操作</li>
+</ol>
+<p>第一点，有没有权限链接上来，那就是(host:user:password)在 <code>user</code> 表中没有找到记录。这就是典型的保安三段问，你从哪里来？你是谁？你的密码是多少。第二点，数据库执行权限，那就是根据各个前面提到的6张表共同构成。其中：</p>
+<ul>
+<li>user 表存储可以链接服务器的用户及其口令，并且它指定他们有哪些全局（超级用户）权限。在user表启用的任何权限均是全局权限，并适用于所有数据库</li>
+<li>db 表，顾名思义，就是数据库的权限，这里的权限适用于一个数据库中所有表</li>
+<li>tables_priv 表，特指表级别的权限，在这里指定一个权限适用于所有表的列</li>
+<li>columns_priv 表，特指列级别权限</li>
+<li>proce_priv，指的是存储过程权限</li>
+<li>proxies_priv，利用 MySQL proxies_priv 实现类似用户组管理。角色(Role)可以用来批量管理用户，同一个角色下的用户，拥有相同的权限。</li>
+</ul>
+<p>MySQL 的权限检查顺序并不是按作用域去检查，而是按优先级检查，如果满足就不再进入下一个作用域进行检查：</p>
+<ol>
+<li>校验<code>user</code>表，对于全局权限是ok → 直接执行</li>
+<li>检验<code>db</code>表，对于某个有特定的数据库有权限 → 执行</li>
+<li>检验<code>tables_priv</code>，对于特定数据库下的某些表是有权限 → 执行</li>
+<li>检验<code>columns_priv</code>，对于特定表中的某些列有权限 → 执行</li>
+</ol>
+<p>从总体整个流程上看，用户登录，<code>user</code> 表首先能限制用户登录，其次还保存了该用户的全局权限，如果该用户没有任何权限，那么将从 <code>db</code> 表中查找该用户是否有某个数据库的操作权限，如果都没有，将从 <code>table_priv</code> 表中查找该用户是否有某个表的操作权限，如果有，则该用户可以按照已有的权限来操作该表。有一点需要注意的是，MySQL 在启动时候，所有的权限表内容都会加载到内存。连接器所创建新的连接的时候，会把当前用户的权限读取出来，保存放到线程变量中，供后续的优化器与执行器使用。不过权限对于长连接来说也不是一成不变，它的修改则对应三种情况：</p>
+<ol>
+<li>对于表和列的权限，会在下一次请求中生效</li>
+<li>数据库级别则会在一下个 <code>use db_name</code> 的时候生效</li>
+<li>全局权限的改变和密码的改变只有在下一次重连的时候才会生效</li>
+</ol>
+<p>如果用 GRANT、REVOKE 或 SET PASSWORD对授权表进行修改，服务器会注意到并立即重新将授权表载入内存。<br>
+如果手动地修改授权表(使用 INSERT、UPDATE 或 DELETE 等等)，应该执行 flush privileges 或mysqladmin flush-privileges 或 mysqladmin reload告诉服务器再装载授权表，否则更改将不会生效，除非重启服务器。</p>
+<p>MySQL详细的权限系统可以参考<a href="https://www.cnblogs.com/happy-king/p/13904683.html">https://www.cnblogs.com/happy-king/p/13904683.html</a>，这里就不在赘述，实际面试与工作中基本不太可能遇到这些问题。</p>
+<h4 id="总结">总结</h4>
+<p>回到问题：一条SQL的执行流程是怎么样</p>
+<p>对于短链接</p>
+<ol>
+<li>建立连接</li>
+<li>客户端发送一条查询给服务器</li>
+<li>建立连接，权限校验</li>
+<li>服务器先检查查询缓存，如果命中了缓存，则立刻返回存储在缓存中的结果</li>
+<li>否则进入下一阶段，服务器端进行SQL解析、预处理，再由优化器生成对应的执行计划</li>
+<li>MySQL根据优化器生成的执行计划，再调用存储引擎的API来执行查询。</li>
+<li>将结果返回给客户端</li>
+<li>断开连接</li>
+</ol>
+<p>对于长连接，则不会断开连接，等待下一个请求的到来。<br>
+<img src="https://asdcu.github.io/post-images/1670048304347.png" alt="" loading="lazy"></p>
+<p>相关链接：<br>
+<a href="https://blog.51cto.com/u_15080025/2642381">https://blog.51cto.com/u_15080025/2642381</a><br>
+<a href="http://mysql.taobao.org/monthly/2016/07/04/">http://mysql.taobao.org/monthly/2016/07/04/</a></p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://asdcu.github.io/tag/LgClfXkqS/" class="tag">
+                    MySQL
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://asdcu.github.io/about/">
+                  <h3 class="post-title">
+                    关于
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

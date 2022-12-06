@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>mysql事务 | 六巷七号</title>
+<meta name="description" content="傻逼样的去坚持，自会看见牛逼的结果">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://asdcu.github.io/favicon.ico?v=1670337054372">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://asdcu.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://asdcu.github.io">
+        <img src="https://asdcu.github.io/images/avatar.png?v=1670337054372" class="site-logo">
+        <h1 class="site-title">六巷七号</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="github.com/asdcu" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://twitter.com/asd26986328" target="_blank">
+            <i class="fab fa-twitter"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://weibo.com/u/2067638185" target="_blank">
+            <i class="fab fa-weibo"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      傻逼样的去坚持，自会看见牛逼的结果
+    </div>
+    <div class="site-footer">
+       | <a class="rss" href="https://asdcu.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">mysql事务</h2>
+            <div class="post-date">2021-02-27</div>
+            
+            <div class="post-content">
+              <p>ACID</p>
+<p>atomicity  原子性<br>
+consistency 一致性<br>
+isolation 隔离性<br>
+durablitity 持久性</p>
+<p>隔离性与隔离级别</p>
+<p>隔离得越严实，效率越低。很多时候都是在寻找之间的平衡点。</p>
+<p>脏读、不可重复读、幻读的问题。SQL的标准事务隔离级别包括</p>
+<ul>
+<li>读未提交 read-uncommitted</li>
+<li>读提交 read-committed</li>
+<li>可重复度 repeatable-read</li>
+<li>串行化 serializable</li>
+</ul>
+<p>读未提交是指，一个事务还没提交时，它做的变更能被别的事务看到<br>
+读未提交是指，一个事务提交之后，它做的变更才被其他事务看到<br>
+可重复读是指，一个事务执行过程中看到的数据，总是跟这个事务在启动时看到的数据是一致的。当然在可重复度隔离级别下，未提交变更对其他事务也是不可见的<br>
+串行化，顾名思义就是对同一行记录，写会加写锁，读会加读锁。当出现读写锁冲突的时候，后访问的事务必须先等待先访问的事务执行完成，才能继续执行</p>
+<p>可重复读的实现，实际上是会创建一个视图，访问的时候以视图的逻辑结果为准。在可重复读的情况下，这个视图是在事务启动时候创建的。整个事务存在期间都在使用这个视图。在读提交的级别下，这个视图是在每个SQL开始执行的时候创建的。读未提交是直接裸奔，串行化是大锁</p>
+<p>oracle默认级别是读提交，mysql是可重复读。配置选项是transaction-isolation。可重复度的实现。</p>
+<p>每条记录在更新的时候都会同时记录一条回滚操作。记录上的最新值，通过回滚操作，都可以得到一个状态值。</p>
+<p>同一条记录在系统中可以存在多个版本，就是数据库多版本并发控制MVCC。回滚日志是不会一直保留。什么时候删除？当没有实物再需要用到这些回滚日志时，回滚日志会被删除。这也是为什么尽量不适用长事务的原因。</p>
+<p>长事务意味着系统里面会存在很老的事务视图。由于这些事务随时可能访问数据库里面的任何数据。所以这个事务提交之前，数据库里面它可能用到的回滚记录都必须保留，这就会导致大量占用存储空间。</p>
+<p>mysql5.5以前，回滚日志跟数据字典一起放在ibdata文件里，即使事务最终提交，回滚段被清理，文件也不会变小。</p>
+<p>事务的启动方式。</p>
+<p>1.显示启动事务语句，begin 或者 start transaction。提交是commit，回滚是rollabck</p>
+<p>set autocommit = 0，这个命令会将这个县城的自动提交关闭，意味着只执行一个select语句，这个事务就启动，而且并不会自动提交。这个事务持续存在直到主动执行commit或者rollback或者断开连接。</p>
+<p>可以在information_schema库的innodb_trx这个表中查询长事务。</p>
+
+            </div>
+            
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

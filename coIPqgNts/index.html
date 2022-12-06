@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>linux的CPU性能 | 六巷七号</title>
+<meta name="description" content="傻逼样的去坚持，自会看见牛逼的结果">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://asdcu.github.io/favicon.ico?v=1670337054372">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://asdcu.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://asdcu.github.io">
+        <img src="https://asdcu.github.io/images/avatar.png?v=1670337054372" class="site-logo">
+        <h1 class="site-title">六巷七号</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="github.com/asdcu" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://twitter.com/asd26986328" target="_blank">
+            <i class="fab fa-twitter"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://weibo.com/u/2067638185" target="_blank">
+            <i class="fab fa-weibo"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      傻逼样的去坚持，自会看见牛逼的结果
+    </div>
+    <div class="site-footer">
+       | <a class="rss" href="https://asdcu.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">linux的CPU性能</h2>
+            <div class="post-date">2020-04-21</div>
+            
+            <div class="post-content">
+              <p>🤒🤒🤒🤒🤒🤒🤒🤒🤒🤒</p>
+<h3 id="怎样理解平均负载">怎样理解平均负载</h3>
+<p>每次发现系统变慢的时候，通常第一件做的事就是top或者uptime命令，来交接系统的负载情况。</p>
+<pre><code class="language-shell">$ uptime
+22:10  up 22 days,  2:13, 3 users, load averages: 2.18 2.25 2.16
+</code></pre>
+<p>这里每一列的含义：<br>
+<code>当前时间 系统运行时间 正在登陆的用户数 1分钟 5分钟15分钟的平均负载(load average)</code></p>
+<p>何为平均负载：<br>
+平均负载指的是单位时间内，系统处于可运行状态和不可中断状态的平均进程数，也就是平均活跃进程数。所谓可运行状态的进程，是指正在使用CPU或者正在等待CPU的进程，也就是处于R状态的进程。不可中断状态则是正处于内核态关键流程中的进程，并且这些进程的流程是不可打断的，比如常见的是等待硬件设备的I/O响应，也就是D状态的进程。实际上这是操作系统的一种更加快速的计算方式，一般也当做平均值来计算。</p>
+<p>如，平均负载为2时候：</p>
+<ul>
+<li>在只有2核的CPU上，意味着所有的CPU刚好完全占用</li>
+<li>在4核的CPU上，意味着有50%的空闲</li>
+<li>只有1核的CPU上，则意味着有一般的进程竞争不到CPU</li>
+</ul>
+<p>平均负载的最合理情况就是等于CPU的个数。可以通过top命令或者通过cat <code>/proc/cpuinfo</code>，更加直接地查看CPU的个数如下</p>
+<pre><code class="language-shell">$ grep 'model name' /proc/cpuinfo | wc -l
+</code></pre>
+<p>又如前面所说的，有三个不同的时间间隔，其实是给我们提供了分析系统趋势的数据来源。<br>
+打个比方，好比初秋的北方的早中晚的气温，如果只看中午的温度，实际上是无法反应秋天的天气状况。</p>
+<ul>
+<li>1分钟、5分钟、15分钟三个值基本相同或者相差不大，就说明系统负载趋于平稳</li>
+<li>如果1分钟值远小于15分钟的值，说明最近1分钟的负载正在减少，有下降的趋势</li>
+<li>如果1分钟值远小于15分钟的值，则说明负载在增加，需要持续观察。</li>
+</ul>
+<p><strong>实际的生产环境中，当平均负载高于CPU数量的70%的时候</strong>，就应该分析和排查负载过高的问题了。</p>
+<h3 id="进程竞争cpu的时候没有真正运行但是系统负载升高">进程竞争CPU的时候没有真正运行，但是系统负载升高</h3>
+<p>Linux是一个多任务系统，支持远大于CPU数量的任务同时进行。实际上并发进行而不是并行进行。每一个任务运行之前，都要吸纳设置好CPU寄存器和程序计数器。CPU寄存器，是CPU内置的容量小、但速度极快的内存。而程序计数器则是用来存储CPU正在执行指令的位置、或者即将下一条指令位置。他们都是CPU在任何任务钱，必须依赖的环境。也被称为CPU上下文。任务切换也就是CPU上下文切换.</p>
+<h3 id="cpu上下文切换">CPU上下文切换</h3>
+<p>每个任务运行前，CPU需要知道任务从哪里加载、又从哪里开始。所以需要事先设置好CPU寄存器和程序计数器。CPU寄存器，是CPU内置容量小、但速度极快的内存。而程序计数器是用来存储CPU执行指令位置、或者即将执行的下一条指令位置。他们都是CPU在运行任务钱，必须依赖的环境。也就是CPU上下文。</p>
+<p>所以CPU上下文切换，就是把前一个任务的CPU上下文保存起来，然后加载新的任务的CPU上下文。</p>
+<h3 id="cpu上下文切换的类型">CPU上下文切换的类型</h3>
+<p>进程上下文切换、线程上下文切换、中断上下文切换</p>
+<h4 id="进程上下文切换">进程上下文切换</h4>
+<p>Linux把进程的运行空间分为内核空间和用户空间，内核空间可以访问所有资源，具备最高权限。用户空间则不能访问内存、磁盘等硬件设备资源，必须通过系统调用才能访问到，嵌入到内核中才能访问。</p>
+<p>所以，进程也可分为内核态、用户态。从用户态到内核态，需要通过系统调用来完成。如，查看文件内容，通过<code>open()</code>打开文件，<code>read()</code>来读取文件内容，<code>write()</code>来将内容写进标准输出，最后通过<code>close()</code>关闭文件。这中间就经过多次的系统调用。</p>
+<p>从这里也可以看出，一次系统调用，是发生两次CPU上下文切换。首先是从用户态-&gt;内核态，从内核态-&gt;用户态。CPU寄存器里原原来用户的指令位置，先保存起来，然后更新为内核态指令的位置。系统调用结束后，再恢复原来用户态。</p>
+<p>不过，系统调用与一般的进程切换不同的是，系统调用不涉及虚拟内存、栈、全局变量等进程用户资源，也不会切换进程，而是一直在同一个进程中执行。此外，进程是由内核来管理和调度，因此进程的资源还会包括内核对战、寄存器等内核空间的状态。所以每次进程上下文的切换，应该是保存当前内核态和CPU集群器之前，需要先把该进程的虚拟内存和栈保存起来；加载下一步进程的内核后，还需要刷新进程的虚拟内存和栈。</p>
+<h4 id="进程之间的切换">进程之间的切换</h4>
+<p>进程发生调度的时候会发生上下文切换。比较典型的情况如下：</p>
+<ol>
+<li>CPU时间片用完，就会被系统挂起，切换到其他等待的CPU进程运行</li>
+<li>进程在系统资源不足（内存不足），需要等到资源满足后才能运行</li>
+<li>程序主动通过sleep</li>
+<li>更高优先级的进程运行</li>
+<li>硬件中断</li>
+</ol>
+<h4 id="线程上下文切换">线程上下文切换</h4>
+<p>线程与进程的最大区别是线程是调度的基本单位，进程是资源的拥有单位。进程只提供了虚拟内存、全局变量等资源，实际上调度对象是线程。只有一个线程的时候，进程就等同于线程。当有多个线程时候，这些线程会共享虚拟内存和全局变量资源，在同个进程中，进行线程上下文切换的时候，这些变量不需要修改和替换。不过，线程也有自己的私有数据，比如栈、寄存器等。在不同的进程中，资源不同享，同进程上下文切换。</p>
+<h4 id="中断上下文切换">中断上下文切换</h4>
+<p>中断上下文切换并不涉及到进程的用户态，即使终端打断了用户态的进程，也不需要保存和回复这个进程的虚拟内存、全局变量等用户资源。</p>
+
+            </div>
+            
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>linux性能瓶颈的排查思路 | 六巷七号</title>
+<meta name="description" content="傻逼样的去坚持，自会看见牛逼的结果">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://asdcu.github.io/favicon.ico?v=1670337054372">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://asdcu.github.io/styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://asdcu.github.io">
+        <img src="https://asdcu.github.io/images/avatar.png?v=1670337054372" class="site-logo">
+        <h1 class="site-title">六巷七号</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="github.com/asdcu" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://twitter.com/asd26986328" target="_blank">
+            <i class="fab fa-twitter"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://weibo.com/u/2067638185" target="_blank">
+            <i class="fab fa-weibo"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      傻逼样的去坚持，自会看见牛逼的结果
+    </div>
+    <div class="site-footer">
+       | <a class="rss" href="https://asdcu.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">linux性能瓶颈的排查思路</h2>
+            <div class="post-date">2020-04-21</div>
+            
+            <div class="post-content">
+              <p>有监控的情况下，首先看大盘监控，看有没有异常报警。如果初期还没有监控的情况下，我一般按照以下思路去进行排查。</p>
+<ol>
+<li>首先去看系统的平均负载，使用top或者htop命令查看，平均负载提现的是系统一个整体情况，他应该是cpu、内存、磁盘性能的一个综合，一般是平均负载的平均值大于cpu的核数时候，这说明机器资源已经很紧张。</li>
+<li>负载高了以后，接下来要看看具体什么资源导致。首先会在top命令中看cpu的每个核的使用情况，如果占比很高，那瓶颈应该是cpu，接下来就要看是什么进程导致的</li>
+<li>如果cpu没有什么问题，接下来会看内存，首先用free查看内存使用情况，但不直接看剩余多少，还要结合cache和buffer，然后再看看具体什么进程占用了过高的内存，也是用top去排序。</li>
+<li>内存没有什么问题，就要去看磁盘。磁盘用iostat去看看，遇到的磁盘问题比较少。</li>
+<li>还有就是带宽问题，一般用iftop去查看流量的情况，看看流量是否超过机器给定的带宽。</li>
+<li>涉及到具体的应用的话，就要根据具体应用的设定参数来查看，比如连接数是否超过设定值。</li>
+<li>如果系统层各个指标都没有发现异常，就要考虑外部系统，比如数据库、缓存、存储等等。</li>
+</ol>
+<p>性能概念的指标：高并发=&gt; 吞吐 响应快=&gt;延时<br>
+从应用负载的角度出发：Application-&gt;Libraries-&gt;System Call-&gt;Linux Kernel-&gt;Drive<br>
+用系统资源视角出发：Drive-&gt;Linux Kernel-&gt;System Call-&gt;Libraries-&gt;Application</p>
+<p>性能指标的评判有以上两种常用的角度。接着六步</p>
+<ol>
+<li>选择性能指标评估应用和系统的性能</li>
+<li>为应用和系统设定性能目标</li>
+<li>进行性能基准测试</li>
+<li>性能分析定位瓶颈</li>
+<li>优化系统和应用程序</li>
+<li>性能监控和告警</li>
+</ol>
+<p>从正确的角度出发，设定目标（性能优化不是漫无目的的），基准测试（了解现有系统应用的运行时情况），根据情况分析瓶颈，优化他，设置监控和告警（其实可以再拓展比如达到一定的负载，采取降级熔断等操作）</p>
+
+            </div>
+            
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+<script type="application/javascript">
+
+AOS.init();
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>
